@@ -1,28 +1,33 @@
-const React = require("react");
-const express = require("express");
-const ReactDOMServer = require("react-dom/server");
-const { StaticRouter } = require("react-router-dom/server");
-const { Dak2 } = require("./src/App");
-require("dotenv/config");
-const { createServer } = require("http");
+import express from "express";
+import ReactDOMServer from "react-dom/server";
+import { StaticRouter } from "react-router-dom/server";
+import Dak2 from "App";
+import React from "react";
+import "dotenv/config";
+import { createServer } from "http";
 import path from "path";
 
-const jsScriptTagsFromAssets = (assets,) => {
-    return assets ? assets.map(asset =>
+const jsScriptTags = (assets: Record<string, any>) => {
+    return assets ? assets.map((asset: string) =>
         `<script src="${asset}"></script>`
     ).join('') : '';
 };
 
-const renderApp = (req, res) => {
+//temporary fix to wait for @types/react-dom to update.
+declare module 'react-dom/server' {
+    function renderToPipeableStream(a: React.ReactElement, b: any): any
+};
+
+const renderApp = (req: express.Request, res: express.Response) => {
     const app = React.createElement(StaticRouter, {
         location: req.url
     }, React.createElement(Dak2, null));
-    let didError;
-    let error;
+    let didError: boolean;
+    let error: unknown;
     const scripts = ['vendor.js', 'client.js'];
     const { pipe, abort } = ReactDOMServer.renderToPipeableStream(app,
         {
-            onError(x) {
+            onError(x: unknown) {
                 didError = true;
                 error = x;
             },
@@ -35,7 +40,7 @@ const renderApp = (req, res) => {
                     res.setHeader("Content-type", "text/html; charset=UTF-8");
                     res.write(`<!DOCTYPE html><html><head><title>Dak</title></head><body><div id="root">`);
                     pipe(res);
-                    res.write(`</div>${jsScriptTagsFromAssets(scripts)}</body></html>`);
+                    res.write(`</div>${jsScriptTags(scripts)}</body></html>`);
                 }
             }
         }
@@ -43,8 +48,8 @@ const renderApp = (req, res) => {
     setTimeout(abort, 60000);
 };
 
-function handleErrors(fn) {
-    return async function (req, res, next) {
+function handleErrors(fn: any) {
+    return async function (req: express.Request, res: express.Response, next: express.NextFunction) {
         try {
             return await fn(req, res);
         }
@@ -58,19 +63,17 @@ const app = express();
 
 app.use(express.static(path.join(__dirname)));
 
-app.get("/api", (req, res) => {
-    res.status(404).json({ message: "fuck you", err: true })
+app.get("/api", (req: express.Request, res: express.Response) => {
+    res.status(404).json({ message: "hehe", err: true })
 });
 
-app.get("*", handleErrors(async function (req, res) {
+app.get("*", handleErrors(async function (req: express.Request, res: express.Response) {
     renderApp(req, res);
 }));
 
-const port = process.env.PORT | 3000;
+const port = process.env.PORT || 3000;
 
-const server = express().use((req, res) => app.handle(req, res));
-
-const httpServer = createServer(server);
+const httpServer = createServer(app);
 
 httpServer.listen(port, () => {
     console.log(`🚀 Server started on port ${port}`);

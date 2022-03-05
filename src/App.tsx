@@ -1,5 +1,5 @@
-const { Routes, Route, Link } = require("react-router-dom");
-const React = require("react");
+import { Routes, Route, Link } from "react-router-dom";
+import React from "react";
 
 const Dak2 = () => {
     return (
@@ -17,4 +17,4 @@ const Dak2 = () => {
     );
 };
 
-exports.Dak2 = Dak2;
+export default Dak2
