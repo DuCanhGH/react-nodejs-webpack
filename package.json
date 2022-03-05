@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "webpack && node ./build/server.js",
     "build": "webpack",
-    "start": "NODE_ENV=production node index.js"
+    "start": "NODE_ENV=production node build/server.js"
   },
   "author": "DuCanh",
   "license": "MIT",

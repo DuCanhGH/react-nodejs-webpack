@@ -72,6 +72,8 @@ RUN npm install
 
 COPY . .
 
+RUN npm run build
+
 RUN npm prune --prod
 
 EXPOSE 3000
