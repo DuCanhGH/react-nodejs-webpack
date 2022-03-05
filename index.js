@@ -4,6 +4,7 @@ const ReactDOMServer = require("react-dom/server");
 const { StaticRouter } = require("react-router-dom/server");
 const { Dak2 } = require("./src/App");
 require("dotenv/config");
+const { createServer } = require("http");
 
 const renderApp = (req, res) => {
     const app = React.createElement(StaticRouter, {
@@ -38,6 +39,10 @@ app.get("*", (req, res) => {
 
 const port = process.env.PORT | 3000;
 
-app.listen(port, () => {
+const server = express().use((req, res) => app.handle(req, res));
+
+const httpServer = createServer(server);
+
+httpServer.listen(port, () => {
     console.log(`🚀 Server started on port ${port}`);
 });
