@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "NODE_ENV = production & node index.js"
+    "start": "NODE_ENV=production node index.js"
   },
   "author": "DuCanh",
   "license": "ISC",
