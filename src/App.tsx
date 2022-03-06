@@ -18,6 +18,7 @@ const Dak2 = () => {
             <div className={styles['hehe']}>Nani</div>
             <p className="hehe">Adu</p>
             <p className={styles2.displaynone}>Adu</p>
+            <img src="/img/favicon.ico" />
         </React.Fragment>
     );
 };

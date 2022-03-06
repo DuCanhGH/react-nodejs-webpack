@@ -5,16 +5,19 @@ import Dak2 from "App";
 import React from "react";
 import "dotenv/config";
 import { createServer } from "http";
+import fs from "fs-extra";
 
 let assets: any;
 
 const syncLoadAssets = () => {
-  assets = require(process.env.ASSETS_MANIFEST!);
+    if (fs.existsSync(process.env.ASSETS_MANIFEST!)) {
+        assets = require(process.env.ASSETS_MANIFEST!);
+    }
 };
 
 syncLoadAssets();
 
-const cssLinksFromAssets = (assets: Record<string, any>,  entrypoint: string) => {
+const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => {
     return assets[entrypoint] ? assets[entrypoint].css && typeof assets[entrypoint].css === "object" ?
         assets[entrypoint].css.map((asset: string) =>
             `<link rel="stylesheet" href="${asset}">`
@@ -23,9 +26,9 @@ const cssLinksFromAssets = (assets: Record<string, any>,  entrypoint: string) =>
 
 const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string) => {
     return assets[entrypoint] ? assets[entrypoint].js && typeof assets[entrypoint].js === "object" ?
-    assets[entrypoint].js .map((asset: string) =>
-        `<script src="${asset}"></script>`
-    ).join('') : '' : '';
+        assets[entrypoint].js.map((asset: string) =>
+            `<script src="${asset}"></script>`
+        ).join('') : '' : '';
 };
 
 //temporary fix to wait for @types/react-dom to update.

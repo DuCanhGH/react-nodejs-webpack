@@ -1,11 +1,11 @@
 const path = require("path");
-const fs = require("fs");
+const fs = require('fs-extra');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
+
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");
-
-const appAssetsManifest = path.resolve(__dirname, "build/assets.json");
+const appAssetsManifest = path.resolve(rootDir, "build/assets.json");
 
 const common = {
     module: {
