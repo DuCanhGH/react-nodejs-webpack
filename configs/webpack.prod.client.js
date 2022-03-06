@@ -2,11 +2,16 @@ const common = require("./webpack.common");
 const path = require('path');
 const fs = require('fs-extra');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
+const isDev = process.env.NODE_ENV !== 'production';
 
 fs.emptyDirSync(buildDir);
+
+const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || (isDev ? `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}/` : '/');
 
 const clientConfig = {
     ...common,
@@ -17,7 +22,7 @@ const clientConfig = {
         client: path.resolve(srcDir, 'client.tsx'),
     },
     output: {
-        publicPath: '/',
+        publicPath: clientPublicPath,
         path: buildDir,
         filename: '[name].js',
         chunkFilename: '[name].chunk.js',
@@ -58,7 +63,7 @@ const clientConfig = {
                 const allFiles = []
                     .concat(
                         ...(entry.chunks || []).map(chunk =>
-                            chunk.files.map(path => !path.startsWith('/.') && path)
+                            chunk.files.map(path => !path.startsWith('/.') && clientPublicPath + path)
                         )
                     )
                     .filter(Boolean);
@@ -92,6 +97,14 @@ const clientConfig = {
                 }, {});
             return entryArrayManifest;
         },
+    }), new CopyPlugin({
+        patterns: [
+            {
+                from: path.resolve(rootDir, 'public').replace(/\\/g, '/') + '/**/*',
+                to: buildDir,
+                context: path.resolve(rootDir, '.'),
+            },
+        ]
     })])
 };
 

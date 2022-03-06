@@ -80,7 +80,7 @@ const app = express();
 
 app.use(express.static('build'));
 
-app.use(express.static('public'));
+app.use(express.static(process.env.PUBLIC_DIR ?? 'public'));
 
 app.get("/api", (req: express.Request, res: express.Response) => {
     res.status(404).json({ message: "hehe", err: true })

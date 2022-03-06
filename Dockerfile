@@ -5,6 +5,8 @@ RUN groupadd --gid 1000 node \
 
 ENV NODE_VERSION 16.14.0
 
+ENV NODE_ENV production
+
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x64';; \
@@ -74,7 +76,7 @@ COPY . .
 
 RUN npm run build
 
-RUN npm prune --prod
+RUN npm prune --production
 
 EXPOSE 3000
 
