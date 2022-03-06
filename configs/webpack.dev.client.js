@@ -25,8 +25,9 @@ const clientConfig = {
     output: {
         publicPath: '/',
         path: buildDir,
-        filename: '[name].js',
-        chunkFilename: '[name].chunk.js',
+        filename: 'static/js/[name].js',
+        chunkFilename: 'static/js/[name].chunk.js',
+        assetModuleFilename: 'static/media/[name].[hash][ext]',
     },
     devServer: {
         disableHostCheck: true,

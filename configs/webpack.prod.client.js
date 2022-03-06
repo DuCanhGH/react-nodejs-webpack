@@ -28,8 +28,9 @@ const clientConfig = {
     output: {
         publicPath: clientPublicPath,
         path: path.resolve(buildDir, 'public'),
-        filename: '[name]-[contenthash:8].js',
-        chunkFilename: '[name]-[contenthash:8].chunk.js',
+        filename: 'static/js/[name]-[contenthash:8].js',
+        chunkFilename: 'static/js/[name]-[contenthash:8].chunk.js',
+        assetModuleFilename: 'static/media/[name].[hash][ext]'
     },
     optimization: {
         ...common.optimization,

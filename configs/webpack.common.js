@@ -38,7 +38,14 @@ const common = {
             },
             {
                 test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-                type: 'asset/resource',
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: 'static/media/[name].[hash].[ext]',
+                        },
+                    }
+                ]
             }
         ],
     },
@@ -48,8 +55,8 @@ const common = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name].css',
-            chunkFilename: '[name].chunk.css',
+            filename: 'static/css/[name].css',
+            chunkFilename: 'static/css/[name].chunk.css',
         }),
         new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] })].concat(process.env.NODE_ENV === "production" ? [
             new webpack.optimize.ModuleConcatenationPlugin(),

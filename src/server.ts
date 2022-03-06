@@ -54,7 +54,7 @@ const renderApp = (req: express.Request, res: express.Response) => {
                 didError = true;
                 error = x;
             },
-            async onCompleteShell() {
+            onCompleteShell() {
                 res.statusCode = didError ? 500 : 200;
                 if (didError && error) {
                     return res.status(500).send(error);
@@ -103,7 +103,7 @@ app.use(compression());
 
 if (process.env.NODE_ENV !== "production") {
     app.use(express.static("build"));
-}
+};
 
 app.use(express.static(process.env.PUBLIC_DIR ?? "public"));
 
