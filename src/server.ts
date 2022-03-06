@@ -61,7 +61,22 @@ const renderApp = (req: express.Request, res: express.Response) => {
                 }
                 else {
                     res.setHeader("Content-type", "text/html; charset=UTF-8");
-                    res.write(`<!DOCTYPE html><html><head><title>This is a template.</title>${cssLinksFromAssets(assets, 'client')}</head><body><div id="root">`);
+                    res.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8" />
+                        <link rel="icon" href="/favicon.ico" />
+                        <meta name="viewport" content="width=device-width, initial-scale=1" />
+                        <meta name="theme-color" content="#000000" />
+                        <meta
+                        name="description"
+                        content="A template. A React app."
+                        />
+                        <link rel="apple-touch-icon" href="/logo192.png" />
+                        <title>React App</title>
+                        ${cssLinksFromAssets(assets, 'client')}
+                    </head><body><div id="root">`);
                     pipe(res);
                     res.write(`</div>${jsScriptTagsFromAssets(assets, 'client')}</body></html>`);
                 }
@@ -86,7 +101,7 @@ const app = express();
 
 app.use(compression());
 
-if(process.env.NODE_ENV !== "production"){
+if (process.env.NODE_ENV !== "production") {
     app.use(express.static("build"));
 }
 

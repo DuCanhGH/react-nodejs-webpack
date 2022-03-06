@@ -48,8 +48,8 @@ const common = {
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash:8].css',
-            chunkFilename: '[name].[contenthash:8].chunk.css',
+            filename: '[name].css',
+            chunkFilename: '[name].chunk.css',
         }),
         new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] }),
         new webpack.DefinePlugin({

@@ -9,18 +9,35 @@ import logo from "logo.svg";
 const Dak2 = () => {
     return (
         <React.Fragment>
-            <Routes>
-                <Route path="*" element={<div>I don't know what is this route </div>} />
-                <Route path="/home" element={<div>Just for fun</div>} />
-                <Route path="/about" element={<div>About</div>} />
-            </Routes>
-            <Link to="/home">Home</Link>
-            <Link to="/about">Dak</Link>
-            <div className={styles['hehe']}>Nani</div>
-            <p className="hehe">Adu</p>
-            <p className={styles2.displaynone}>Adu</p>
-            <img src={logo} className="App-logo" />
-            <img className="App-logo" src="/img/favicon.ico" />
+            <div className="App">
+                <header className="App-header">
+                    <img src={logo} className="App-logo" alt="logo" />
+                    <p className={styles.hehe}>
+                        Edit <code>src/App.tsx</code>, save and reload to see the changes.
+                    </p>
+                    <p className={styles.hehe}>
+                        Click the links to see the route changes!
+                    </p>
+                    <Routes>
+                        <Route path="*" element={<p className={styles2['hehe']}>Welcome</p>} />
+                        <Route path="/home" element={<p className={styles2['hehe']}>To</p>} />
+                        <Route path="/about" element={<p className={styles2['hehe']}>React!</p>} />
+                    </Routes>
+                    <div>
+                        <Link to="/" className="App-link">Root</Link>
+                        <Link to="/home" className="App-link">Home</Link>
+                        <Link to="/about" className="App-link">About</Link>
+                        <a
+                            className="App-link"
+                            href="https://reactjs.org"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Learn React here!
+                        </a>
+                    </div>
+                </header>
+            </div>
         </React.Fragment>
     );
 };

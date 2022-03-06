@@ -49,7 +49,7 @@ const clientConfig = {
     },
     devtool: 'inline-source-map',
     plugins: common.plugins.concat([new WebpackManifestPlugin({
-        fileName: "assets.json",
+        fileName: path.resolve(buildDir, 'assets.json'),
         writeToFileEmit: true,
         generate: (seed, files) => {
             const entrypoints = new Set();
