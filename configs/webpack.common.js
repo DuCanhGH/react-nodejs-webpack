@@ -35,7 +35,7 @@ const common = {
             },
             {
                 test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-                use: ["file-loader"],
+                type: 'asset/resource',
             }
         ],
     },
@@ -45,7 +45,7 @@ const common = {
     },
     plugins: [new MiniCssExtractPlugin(), new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] }), new webpack.DefinePlugin({
         'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
-        'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, process.env.NODE_ENV !== "development" ? "build/public" : "public")),
+        'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, process.env.NODE_ENV === "production" ? "build/public" : "public")),
     })],
 };
 

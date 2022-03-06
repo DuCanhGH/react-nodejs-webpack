@@ -1,13 +1,14 @@
 const common = require("./webpack.common");
 const path = require('path');
 const fs = require('fs-extra');
-const nodeExternals = require('webpack-node-externals');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
 const publicDir = path.resolve(rootDir, 'public');
+
+const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}/`;
 
 const clientConfig = {
     ...common,
@@ -71,7 +72,7 @@ const clientConfig = {
                 const allFiles = []
                     .concat(
                         ...(entry.chunks || []).map(chunk =>
-                            chunk.files.map(path => !path.startsWith('/.') && path)
+                            chunk.files.map(path => !path.startsWith('/.') && clientPublicPath + path)
                         )
                     )
                     .filter(Boolean);
@@ -108,32 +109,4 @@ const clientConfig = {
     })])
 };
 
-const serverConfig = {
-    ...common,
-    target: 'node',
-    mode: "development",
-    name: 'server',
-    entry: {
-        server: path.join(srcDir, "server.ts")
-    },
-    externals: [nodeExternals()],
-    output: {
-        publicPath: '/',
-        path: buildDir,
-        filename: 'server.js',
-    },
-    devServer: {
-        disableHostCheck: true,
-        clientLogLevel: 'none',
-        publicPath: publicDir,
-        noInfo: true,
-        overlay: false,
-        quiet: true,
-    },
-    devtool: 'inline-source-map',
-    node: {
-        __dirname: false,
-    },
-};
-
-module.exports = [clientConfig, serverConfig];
+module.exports = clientConfig;

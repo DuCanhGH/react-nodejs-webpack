@@ -3,6 +3,7 @@ import React from "react";
 import styles from "app.module.sass";
 import styles2 from "adu.module.scss";
 import 'app.css';
+import logo from "logo.svg";
 //an example of how you can use css/sass/scss files.
 
 const Dak2 = () => {
@@ -18,7 +19,8 @@ const Dak2 = () => {
             <div className={styles['hehe']}>Nani</div>
             <p className="hehe">Adu</p>
             <p className={styles2.displaynone}>Adu</p>
-            <img src="/img/favicon.ico" />
+            <img src={logo} className="App-logo" />
+            <img className="App-logo" src="/img/favicon.ico" />
         </React.Fragment>
     );
 };

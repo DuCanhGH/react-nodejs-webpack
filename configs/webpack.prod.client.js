@@ -7,11 +7,10 @@ const CopyPlugin = require("copy-webpack-plugin");
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
-const isDev = process.env.NODE_ENV !== 'production';
 
 fs.emptyDirSync(buildDir);
 
-const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || (isDev ? `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}/` : '/');
+const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || '/';
 
 const clientConfig = {
     ...common,
@@ -24,8 +23,8 @@ const clientConfig = {
     output: {
         publicPath: clientPublicPath,
         path: buildDir,
-        filename: '[name].js',
-        chunkFilename: '[name].chunk.js',
+        filename: '[name]-[contenthash].js',
+        chunkFilename: '[name]-[contenthash].chunk.js',
     },
     optimization: {
         splitChunks: {

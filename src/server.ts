@@ -11,7 +11,7 @@ let assets: any;
 
 const syncLoadAssets = () => {
     if (fs.existsSync(process.env.ASSETS_MANIFEST!)) {
-        assets = require(process.env.ASSETS_MANIFEST!);
+        assets = require(process.env.ASSETS_MANIFEST!); 
     }
 };
 
@@ -96,4 +96,4 @@ const httpServer = createServer(app);
 
 httpServer.listen(port, () => {
     console.log(`🚀 Server started on port ${port}`);
-});
+});                       
