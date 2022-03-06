@@ -5,8 +5,6 @@ RUN groupadd --gid 1000 node \
 
 ENV NODE_VERSION 16.14.0
 
-ENV NODE_ENV production
-
 RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" \
     && case "${dpkgArch##*-}" in \
       amd64) ARCH='x64';; \
@@ -73,6 +71,8 @@ COPY package-lock.json ./
 RUN npm install
 
 COPY . .
+
+ENV NODE_ENV production
 
 RUN npm run build
 
