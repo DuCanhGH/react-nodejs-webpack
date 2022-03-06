@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require('fs-extra');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
+const CompressionPlugin = require("compression-webpack-plugin");
 
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");
@@ -43,10 +44,25 @@ const common = {
         modules: ["node_modules", srcDir],
         extensions: [".js", ".jsx", ".json", ".tsx", ".ts"],
     },
-    plugins: [new MiniCssExtractPlugin(), new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] }), new webpack.DefinePlugin({
-        'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
-        'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, process.env.NODE_ENV === "production" ? "build/public" : "public")),
-    })],
+    plugins: [
+        new MiniCssExtractPlugin(),
+        new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] }),
+        new webpack.DefinePlugin({
+            'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
+            'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, process.env.NODE_ENV === "production" ? "build/public" : "public")
+            ),
+        })].concat(process.env.NODE_ENV === "production" ? [
+            new webpack.optimize.ModuleConcatenationPlugin(),
+            new webpack.optimize.UglifyJsPlugin({
+                sourceMap: true
+            }),
+            new CompressionPlugin({
+                algorithm: "gzip",
+                test: /\.(js|css|html|svg)$/,
+                threshold: 6144,
+                minRatio: 0.8
+            })
+        ] : []),
 };
 
 module.exports = common;
