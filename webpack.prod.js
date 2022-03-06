@@ -1,46 +1,14 @@
+const common = require("./webpack.common");
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
 const fs = require('fs');
 const rootDir = fs.realpathSync(process.cwd());
-const srcDir = path.resolve(rootDir, 'src');
 const buildDir = path.resolve(rootDir, 'build');
-
-const common = {
-    mode: 'development',
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                include: srcDir,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        cacheDirectory: true,
-                    },
-                },
-            },
-            {
-                test: /\.(ts|tsx)$/,
-                use: ["ts-loader"],
-            },
-            {
-                test: /\.(css|scss)$/,
-                use: ["style-loader", "css-loader"],
-            },
-            {
-                test: /\.(jpg|jpeg|png|gif|mp3|svg)$/,
-                use: ["file-loader"],
-            },
-        ],
-    },
-    resolve: {
-        modules: ['node_modules', srcDir],
-        extensions: ['.js', '.jsx', '.json', ".tsx", ".ts"],
-    },
-};
+const srcDir = path.resolve(rootDir, 'src');
+const nodeExternals = require('webpack-node-externals');
 
 const clientConfig = {
     ...common,
+    mode: "production",
     target: 'web',
     name: 'client',
     entry: {
@@ -51,6 +19,7 @@ const clientConfig = {
         path: buildDir,
         filename: '[name].js',
         chunkFilename: '[name].js',
+        clean: true,
     },
     optimization: {
         splitChunks: {
@@ -64,23 +33,21 @@ const clientConfig = {
             },
         },
     },
-    devtool: 'source-map',
 };
 
 const serverConfig = {
     ...common,
     target: 'node',
+    mode: "production",
     name: 'server',
-    entry: {
-        server: path.join(srcDir, "server.ts"),
-    },
+    entry: path.join(srcDir, "server.ts"),
     externals: [nodeExternals()],
     output: {
         publicPath: '/',
         path: buildDir,
         filename: 'server.js',
+        clean: true,
     },
-    devtool: 'source-map',
     node: {
         __dirname: false,
     },

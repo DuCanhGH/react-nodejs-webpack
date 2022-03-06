@@ -5,7 +5,14 @@ import Dak2 from "App";
 import React from "react";
 import "dotenv/config";
 import { createServer } from "http";
-import path from "path";
+import assets from "../build/assets.json";
+
+const cssLinksFromAssets = (assets: Record<string, any>,  entrypoint: string) => {
+    return assets[entrypoint] ? assets[entrypoint].css && typeof assets[entrypoint].css === "object" ?
+        assets[entrypoint].css.map((asset: string) =>
+            `<link rel="stylesheet" href="${asset}">`
+        ).join('') : '' : '';
+};
 
 const jsScriptTags = (assets: Record<string, any>) => {
     return assets ? assets.map((asset: string) =>
@@ -38,7 +45,7 @@ const renderApp = (req: express.Request, res: express.Response) => {
                 }
                 else {
                     res.setHeader("Content-type", "text/html; charset=UTF-8");
-                    res.write(`<!DOCTYPE html><html><head><title>Dak</title></head><body><div id="root">`);
+                    res.write(`<!DOCTYPE html><html><head><title>Dak</title>${cssLinksFromAssets(assets, 'main')}</head><body><div id="root">`);
                     pipe(res);
                     res.write(`</div>${jsScriptTags(scripts)}</body></html>`);
                 }
@@ -61,7 +68,9 @@ function handleErrors(fn: any) {
 
 const app = express();
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static('build'));
+
+app.use(express.static('public'));
 
 app.get("/api", (req: express.Request, res: express.Response) => {
     res.status(404).json({ message: "hehe", err: true })
