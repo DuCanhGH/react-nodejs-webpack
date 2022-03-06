@@ -53,9 +53,6 @@ const common = {
             ),
         })].concat(process.env.NODE_ENV === "production" ? [
             new webpack.optimize.ModuleConcatenationPlugin(),
-            new webpack.optimize.UglifyJsPlugin({
-                sourceMap: true
-            }),
             new CompressionPlugin({
                 algorithm: "gzip",
                 test: /\.(js|css|html|svg)$/,

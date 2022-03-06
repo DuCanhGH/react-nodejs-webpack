@@ -5,6 +5,14 @@ const common = require("./webpack.common");
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
+const mri = require('mri');
+
+const argv = process.argv.slice(2);
+const cliArgs = mri(argv);
+
+const nodeEnv = cliArgs['node-env'] || 'production';
+
+process.env.NODE_ENV = /production|development$/.test(nodeEnv) ? nodeEnv : 'production';
 
 const serverConfig = {
     ...common,
