@@ -5,7 +5,14 @@ import Dak2 from "App";
 import React from "react";
 import "dotenv/config";
 import { createServer } from "http";
-import assets from "../build/assets.json";
+
+let assets: any;
+
+const syncLoadAssets = () => {
+  assets = require(process.env.ASSETS_MANIFEST!);
+};
+
+syncLoadAssets();
 
 const cssLinksFromAssets = (assets: Record<string, any>,  entrypoint: string) => {
     return assets[entrypoint] ? assets[entrypoint].css && typeof assets[entrypoint].css === "object" ?
@@ -14,10 +21,11 @@ const cssLinksFromAssets = (assets: Record<string, any>,  entrypoint: string) =>
         ).join('') : '' : '';
 };
 
-const jsScriptTags = (assets: Record<string, any>) => {
-    return assets ? assets.map((asset: string) =>
+const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string) => {
+    return assets[entrypoint] ? assets[entrypoint].js && typeof assets[entrypoint].js === "object" ?
+    assets[entrypoint].js .map((asset: string) =>
         `<script src="${asset}"></script>`
-    ).join('') : '';
+    ).join('') : '' : '';
 };
 
 //temporary fix to wait for @types/react-dom to update.
@@ -31,7 +39,6 @@ const renderApp = (req: express.Request, res: express.Response) => {
     }, React.createElement(Dak2, null));
     let didError: boolean;
     let error: unknown;
-    const scripts = ['vendor.js', 'client.js'];
     const { pipe, abort } = ReactDOMServer.renderToPipeableStream(app,
         {
             onError(x: unknown) {
@@ -45,9 +52,9 @@ const renderApp = (req: express.Request, res: express.Response) => {
                 }
                 else {
                     res.setHeader("Content-type", "text/html; charset=UTF-8");
-                    res.write(`<!DOCTYPE html><html><head><title>Dak</title>${cssLinksFromAssets(assets, 'main')}</head><body><div id="root">`);
+                    res.write(`<!DOCTYPE html><html><head><title>This is a template.</title>${cssLinksFromAssets(assets, 'client')}</head><body><div id="root">`);
                     pipe(res);
-                    res.write(`</div>${jsScriptTags(scripts)}</body></html>`);
+                    res.write(`</div>${jsScriptTagsFromAssets(assets, 'client')}</body></html>`);
                 }
             }
         }
