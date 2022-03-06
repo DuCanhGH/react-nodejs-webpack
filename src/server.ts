@@ -11,11 +11,17 @@ let assets: any;
 
 const syncLoadAssets = () => {
     if (fs.existsSync(process.env.ASSETS_MANIFEST!)) {
-        assets = require(process.env.ASSETS_MANIFEST!); 
+        assets = require(process.env.ASSETS_MANIFEST!);
     }
 };
 
 syncLoadAssets();
+
+process.on('unhandledRejection', err => {
+    console.clear();
+    console.error('Unexpected error', err);
+    process.exit(1);
+});
 
 const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => {
     return assets[entrypoint] ? assets[entrypoint].css && typeof assets[entrypoint].css === "object" ?
@@ -77,8 +83,6 @@ function handleErrors(fn: any) {
 };
 
 const app = express();
-
-app.use(express.static('build'));
 
 app.use(express.static(process.env.PUBLIC_DIR ?? 'public'));
 

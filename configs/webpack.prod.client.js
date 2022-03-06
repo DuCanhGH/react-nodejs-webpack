@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
@@ -22,11 +23,12 @@ const clientConfig = {
     },
     output: {
         publicPath: clientPublicPath,
-        path: buildDir,
-        filename: '[name]-[contenthash].js',
-        chunkFilename: '[name]-[contenthash].chunk.js',
+        path: path.resolve(buildDir, 'public'),
+        filename: '[name]-[contenthash:8].js',
+        chunkFilename: '[name]-[contenthash:8].chunk.js',
     },
     optimization: {
+        ...common.optimization,
         splitChunks: {
             cacheGroups: {
                 vendor: {
@@ -37,9 +39,30 @@ const clientConfig = {
                 },
             },
         },
+        minimizer: [new CssMinimizerPlugin({
+            minimizerOptions: {
+                sourceMap: process.env.SOURCE_MAP || true,
+            },
+            minify: async (data, inputMap, minimizerOptions) => {
+                // eslint-disable-next-line global-require
+                const CleanCSS = require('clean-css');
+                const [[filename, input]] = Object.entries(data);
+                const minifiedCss = await new CleanCSS({ sourceMap: minimizerOptions.sourceMap }).minify({
+                    [filename]: {
+                        styles: input,
+                        sourceMap: inputMap,
+                    },
+                });
+                return {
+                    code: minifiedCss.styles,
+                    map: minifiedCss.sourceMap ? minifiedCss.sourceMap.toJSON() : '',
+                    warnings: minifiedCss.warnings,
+                };
+            },
+        })]
     },
     plugins: common.plugins.concat([new WebpackManifestPlugin({
-        fileName: "assets.json",
+        fileName: path.resolve(buildDir, 'assets.json'),
         writeToFileEmit: true,
         generate: (seed, files) => {
             const entrypoints = new Set();

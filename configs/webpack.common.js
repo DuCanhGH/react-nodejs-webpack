@@ -7,7 +7,8 @@ const mri = require('mri');
 
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");
-const appAssetsManifest = path.resolve(rootDir, "build/assets.json");
+const buildDir = path.resolve(rootDir, 'build');
+const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const argv = process.argv.slice(2);
 const cliArgs = mri(argv);
@@ -53,7 +54,10 @@ const common = {
         extensions: [".js", ".jsx", ".json", ".tsx", ".ts"],
     },
     plugins: [
-        new MiniCssExtractPlugin(),
+        new MiniCssExtractPlugin({
+            filename: '[name].[contenthash:8].css',
+            chunkFilename: '[name].[contenthash:8].chunk.css',
+        }),
         new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] }),
         new webpack.DefinePlugin({
             'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
