@@ -2,7 +2,6 @@ const common = require("./webpack.common");
 const path = require('path');
 const fs = require('fs-extra');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
@@ -36,6 +35,7 @@ const clientConfig = {
         quiet: true,
     },
     optimization: {
+        ...common.optimization,
         splitChunks: {
             cacheGroups: {
                 vendor: {

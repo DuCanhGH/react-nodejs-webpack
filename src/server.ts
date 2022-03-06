@@ -6,9 +6,9 @@ import React from "react";
 import "dotenv/config";
 import { createServer } from "http";
 import fs from "fs-extra";
+import compression from 'compression';
 
 let assets: any;
-
 const syncLoadAssets = () => {
     if (fs.existsSync(process.env.ASSETS_MANIFEST!)) {
         assets = require(process.env.ASSETS_MANIFEST!);
@@ -84,7 +84,13 @@ function handleErrors(fn: any) {
 
 const app = express();
 
-app.use(express.static(process.env.PUBLIC_DIR ?? 'public'));
+app.use(compression());
+
+if(process.env.NODE_ENV !== "production"){
+    app.use(express.static("build"));
+}
+
+app.use(express.static(process.env.PUBLIC_DIR ?? "public"));
 
 app.get("/api", (req: express.Request, res: express.Response) => {
     res.status(404).json({ message: "hehe", err: true })

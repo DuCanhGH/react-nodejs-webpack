@@ -6,6 +6,8 @@ const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
 
+process.env.NODE_ENV = "production";
+
 const serverConfig = {
     ...common,
     target: 'node',

@@ -9,6 +9,8 @@ const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
 
+process.env.NODE_ENV = "production";
+
 fs.emptyDirSync(buildDir);
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || '/';
