@@ -3,10 +3,18 @@ const fs = require('fs-extra');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require("webpack");
 const CompressionPlugin = require("compression-webpack-plugin");
+const mri = require('mri');
 
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");
 const appAssetsManifest = path.resolve(rootDir, "build/assets.json");
+
+const argv = process.argv.slice(2);
+const cliArgs = mri(argv);
+
+const nodeEnv = cliArgs['node-env'] || 'production';
+
+process.env.NODE_ENV = /production|development$/.test(nodeEnv) ? nodeEnv : 'production';
 
 const common = {
     module: {

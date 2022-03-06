@@ -3,20 +3,12 @@ const path = require('path');
 const fs = require('fs-extra');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
-const mri = require('mri');
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
 
 fs.emptyDirSync(buildDir);
-
-const argv = process.argv.slice(2);
-const cliArgs = mri(argv);
-
-const nodeEnv = cliArgs['node-env'] || 'production';
-
-process.env.NODE_ENV = /production|development$/.test(nodeEnv) ? nodeEnv : 'production';
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || '/';
 
