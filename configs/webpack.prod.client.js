@@ -41,7 +41,7 @@ const clientConfig = {
                 },
             },
         },
-        minimizer: [new CssMinimizerPlugin({
+        minimizer: common.optimization.minimizer.concat([new CssMinimizerPlugin({
             minimizerOptions: {
                 sourceMap: process.env.SOURCE_MAP || true,
             },
@@ -61,7 +61,7 @@ const clientConfig = {
                     warnings: minifiedCss.warnings,
                 };
             },
-        })]
+        })])
     },
     plugins: common.plugins.concat([new WebpackManifestPlugin({
         fileName: path.resolve(buildDir, 'assets.json'),
