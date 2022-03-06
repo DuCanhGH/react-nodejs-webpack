@@ -7,6 +7,7 @@ const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
 const srcDir = path.resolve(rootDir, 'src');
 const publicDir = path.resolve(rootDir, 'public');
+const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const serverConfig = {
     ...common,
@@ -34,6 +35,14 @@ const serverConfig = {
     node: {
         __dirname: false,
     },
+    plugins: [
+        ...common.plugins,
+        new webpack.DefinePlugin({
+            'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
+            'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, "public")
+            ),
+        })
+    ]
 };
 
 module.exports = serverConfig;
