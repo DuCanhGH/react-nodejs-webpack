@@ -63,7 +63,7 @@ const renderApp = (req: express.Request, res: express.Response) => {
                     res.setHeader("Content-type", "text/html; charset=UTF-8");
                     res.write(`
                     <!DOCTYPE html>
-                    <html>
+                    <html lang="en">
                     <head>
                         <meta charset="utf-8" />
                         <link rel="icon" href="/favicon.ico" />
