@@ -6,7 +6,7 @@
     "node": ">=16.14.0"
   },
   "scripts": {
-    "dev": "concurrently --handle-input -n wp-client,wp-server,nodemon \"webpack --watch --config configs/webpack.dev.client.js\" \"webpack --watch --config configs/webpack.dev.server.js\" \"nodemon build/server.js\"",
+    "dev": "concurrently --handle-input -n wp-client,wp-server,nodemon \"webpack --watch --config configs/webpack.dev.client.js\" \"webpack --watch --config configs/webpack.dev.server.js\" \"nodemon dist/server.js\"",
     "build": "webpack --config configs/webpack.prod.client.js && webpack --config configs/webpack.prod.server.js",
     "start": "NODE_ENV=production node build/server.js",
     "start:windows": "set NODE_ENV=production & node build/server.js"

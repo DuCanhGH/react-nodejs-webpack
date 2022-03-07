@@ -1,20 +1,43 @@
 const common = require("./webpack.common");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require('path');
 const fs = require('fs-extra');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const webpack = require("webpack");
 const rootDir = fs.realpathSync(process.cwd());
-const buildDir = path.resolve(rootDir, 'build');
+const buildDir = path.resolve(rootDir, 'dist');
 const srcDir = path.resolve(rootDir, 'src');
 const publicDir = path.resolve(rootDir, 'public');
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
-const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}/`;
+const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 const clientConfig = {
     ...common,
     module: {
-        rules: common.module.rules.concat()
+        rules: [
+            ...common.module.rules,
+            {
+                test: /\.module\.(css|scss|sass)$/i,
+                use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { importLoaders: 1, modules: true } }, "postcss-loader", "sass-loader"],
+            },
+            {
+                test: /\.(css|scss|sass)$/i,
+                exclude: /\.module\.(css|scss|sass)$/i,
+                use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "sass-loader"],
+            },
+            {
+                test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[hash].[ext]',
+                        },
+                    }
+                ]
+            }
+        ]
     },
     target: 'web',
     mode: "development",
@@ -25,9 +48,8 @@ const clientConfig = {
     output: {
         publicPath: '/',
         path: buildDir,
-        filename: 'static/js/[name].js',
-        chunkFilename: 'static/js/[name].chunk.js',
-        assetModuleFilename: 'static/media/[name].[hash][ext]',
+        filename: '[name].js',
+        chunkFilename: '[name].chunk.js',
     },
     devServer: {
         disableHostCheck: true,
@@ -53,6 +75,10 @@ const clientConfig = {
     devtool: 'inline-source-map',
     plugins: [
         ...common.plugins,
+        new MiniCssExtractPlugin({
+            filename: '[name].css',
+            chunkFilename: '[name].chunk.css',
+        }),
         new WebpackManifestPlugin({
             fileName: path.resolve(buildDir, 'assets.json'),
             writeToFileEmit: true,
