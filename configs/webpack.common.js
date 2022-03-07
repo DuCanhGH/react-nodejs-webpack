@@ -16,6 +16,16 @@ const common = {
                     loader: "babel-loader",
                     options: {
                         cacheDirectory: true,
+                        presets: [
+                            [
+                                "@babel/preset-env",
+                                {
+                                    "modules": false
+                                }
+                            ],
+                            "@babel/react",
+                            "@babel/preset-typescript"
+                        ]
                     },
                 },
             },

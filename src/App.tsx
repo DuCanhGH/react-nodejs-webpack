@@ -5,7 +5,6 @@ import styles2 from "adu.module.scss";
 import 'app.css';
 import logo from "logo.svg";
 //an example of how you can use css/sass/scss files.
-import ReactMarkdown from "react-markdown"; //how the hell am I supposed to make pure ESM packages work?
 
 const Dak2 = () => {
     return (
