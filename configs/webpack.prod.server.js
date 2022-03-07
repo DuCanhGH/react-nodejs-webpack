@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const webpack = require("webpack");
 const common = require("./webpack.common");
 const CompressionPlugin = require("compression-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
@@ -51,6 +52,45 @@ const serverConfig = {
         publicPath: '/',
         path: buildDir,
         filename: 'server.js',
+    },
+    optimization: {
+        ...common.optimization,
+        minimize: true,
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    chunks: 'initial',
+                    name: 'vendor',
+                    test: module => /node_modules/.test(module.resource),
+                    enforce: true,
+                },
+            },
+        },
+        minimizer: [
+            ...common.optimization.minimizer,
+            new TerserPlugin({
+                terserOptions: {
+                    parse: {
+                        ecma: 8,
+                    },
+                    compress: {
+                        ecma: 5,
+                        warnings: false,
+                        comparisons: false,
+                        inline: 2,
+                    },
+                    mangle: {
+                        safari10: true,
+                    },
+                    output: {
+                        ecma: 5,
+                        comments: false,
+                        ascii_only: true,
+                    },
+                    sourceMap: process.env.SOURCE_MAP ?? true,
+                },
+            })
+        ],
     },
     node: {
         __dirname: false,
