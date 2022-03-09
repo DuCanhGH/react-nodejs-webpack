@@ -51,7 +51,7 @@ const clientConfig = {
     target: 'web',
     name: 'client',
     entry: {
-        client: path.resolve(srcDir, 'client.tsx'),
+        client: path.resolve(srcDir, 'client'),
     },
     output: {
         publicPath: clientPublicPath,

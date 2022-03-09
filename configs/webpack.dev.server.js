@@ -41,7 +41,7 @@ const serverConfig = {
     mode: "development",
     name: 'server',
     entry: {
-        server: path.join(srcDir, "server.ts")
+        server: path.join(srcDir, "server")
     },
     externals: [nodeExternals()],
     output: {

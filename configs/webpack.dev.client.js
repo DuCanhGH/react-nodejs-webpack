@@ -43,7 +43,7 @@ const clientConfig = {
     mode: "development",
     name: 'client',
     entry: {
-        client: path.resolve(srcDir, 'client.tsx'),
+        client: path.resolve(srcDir, 'client'),
     },
     output: {
         publicPath: '/',

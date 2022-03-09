@@ -51,18 +51,18 @@ declare module 'react-dom/server' {
 };
 
 const renderApp = (req: express.Request, res: express.Response) => {
-    const app = React.createElement(StaticRouter, {
-        location: req.url
-    }, React.createElement(Dak2, null));
     let didError: boolean;
     let error: unknown;
-    const { pipe, abort } = ReactDOMServer.renderToPipeableStream(app,
+    const { pipe, abort } = ReactDOMServer.renderToPipeableStream(
+        <StaticRouter location={req.url}>
+            <Dak2 />
+        </StaticRouter>,
         {
-            onError(x: unknown) {
+            onShellError(x: unknown) {
                 didError = true;
                 error = x;
             },
-            onCompleteShell() {
+            onShellReady() {
                 res.statusCode = didError ? 500 : 200;
                 if (didError && error) {
                     return res.status(500).send(error);
