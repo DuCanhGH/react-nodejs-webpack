@@ -2,7 +2,7 @@ import express from "express";
 import ReactDOMServer from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import Dak2 from "App";
-import React from "react";
+import { ReactElement } from "react";
 import "dotenv/config";
 import { createServer } from "http";
 import fs from "fs-extra";
@@ -47,7 +47,7 @@ const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string)
 
 //temporary fix to wait for @types/react-dom to update.
 declare module 'react-dom/server' {
-    function renderToPipeableStream(a: React.ReactElement, b: any): any
+    function renderToPipeableStream(a: ReactElement, b: any): any
 };
 
 const renderApp = (req: express.Request, res: express.Response) => {

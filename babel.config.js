@@ -8,7 +8,9 @@ module.exports = function (api) {
                 "modules": false
             }
         ],
-        "@babel/react",
+        ["@babel/react", {
+            "runtime": "automatic"
+        }],
         "@babel/preset-typescript"
     ];
     const plugins = [];

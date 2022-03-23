@@ -1,5 +1,5 @@
 import { Routes, Route, Link } from "react-router-dom";
-import React from "react";
+import { Fragment } from "react";
 import styles from "app.module.sass";
 import styles2 from "adu.module.scss";
 import 'app.css';
@@ -8,7 +8,7 @@ import logo from "logo.svg";
 
 const Dak2 = () => {
     return (
-        <React.Fragment>
+        <Fragment>
             <div className="App">
                 <header className="App-header">
                     <img src={logo} className="App-logo" alt="logo" />
@@ -38,7 +38,7 @@ const Dak2 = () => {
                     </div>
                 </header>
             </div>
-        </React.Fragment>
+        </Fragment>
     );
 };
 
