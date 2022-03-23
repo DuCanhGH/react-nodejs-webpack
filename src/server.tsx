@@ -1,5 +1,5 @@
 import express from "express";
-import ReactDOMServer from "react-dom/server";
+import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import Dak2 from "App";
 import { ReactElement } from "react";
@@ -53,7 +53,7 @@ declare module 'react-dom/server' {
 const renderApp = (req: express.Request, res: express.Response) => {
     let didError: boolean;
     let error: unknown;
-    const { pipe, abort } = ReactDOMServer.renderToPipeableStream(
+    const { pipe, abort } = renderToPipeableStream(
         <StaticRouter location={req.url}>
             <Dak2 />
         </StaticRouter>,
