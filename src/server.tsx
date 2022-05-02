@@ -2,7 +2,6 @@ import express from "express";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 import Dak2 from "App";
-import { ReactElement } from "react";
 import "dotenv/config";
 import { createServer } from "http";
 import fs from "fs-extra";
@@ -14,7 +13,7 @@ const syncLoadAssets = () => {
         assets = require(process.env.ASSETS_MANIFEST!);
     }
 };
-
+ 
 syncLoadAssets();
 
 interface ErrnoException extends Error {
@@ -43,11 +42,6 @@ const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string)
         assets[entrypoint].js.map((asset: string) =>
             `<script src="${asset}"></script>`
         ).join('') : '' : '';
-};
-
-//temporary fix to wait for @types/react-dom to update.
-declare module 'react-dom/server' {
-    function renderToPipeableStream(a: ReactElement, b: any): any
 };
 
 const renderApp = (req: express.Request, res: express.Response) => {

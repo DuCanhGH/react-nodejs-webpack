@@ -9,6 +9,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
+const outputDir = path.resolve(buildDir, 'public');
 const srcDir = path.resolve(rootDir, 'src');
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
@@ -50,8 +51,8 @@ const serverConfig = {
     externals: [nodeExternals()],
     output: {
         publicPath: '/',
-        path: buildDir,
-        filename: 'server.js',
+        path: outputDir,
+        filename: '../server.js',
     },
     optimization: {
         ...common.optimization,
