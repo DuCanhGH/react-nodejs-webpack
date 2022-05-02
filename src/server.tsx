@@ -8,6 +8,7 @@ import fs from "fs-extra";
 import compression from 'compression';
 
 let assets: any;
+
 const syncLoadAssets = () => {
     if (fs.existsSync(process.env.ASSETS_MANIFEST!)) {
         assets = require(process.env.ASSETS_MANIFEST!);
