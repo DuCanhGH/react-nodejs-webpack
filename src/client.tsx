@@ -7,4 +7,8 @@ if (process.env.NODE_ENV === "production") {
   OfflinePluginRuntime.install();
 };
 
-hydrateRoot(document.getElementById('root')!, <BrowserRouter><Dak2 /></BrowserRouter>);
+const container = document.getElementById("root"); //HTML template must have something that uses this id: root.
+
+if (!container) throw new Error('Failed to find the root element');
+
+hydrateRoot(container, <BrowserRouter><Dak2 /></BrowserRouter>);

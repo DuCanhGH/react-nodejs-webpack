@@ -21,7 +21,7 @@ fs.emptyDirSync(buildDir);
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || '/';
 
-const defaultOptions = {
+const defaultOfflinePluginOptions = {
     responseStrategy: 'cache-first',
     externals: ["/"],
     publicPath: "/",
@@ -219,7 +219,7 @@ const clientConfig = {
             'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, "build/public")
             ),
         }),
-        new OfflinePlugin(Object.assign({}, defaultOptions)),
+        new OfflinePlugin(Object.assign({}, defaultOfflinePluginOptions)),
     ]
 };
 
