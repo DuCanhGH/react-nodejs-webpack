@@ -17,20 +17,6 @@ const syncLoadAssets = () => {
  
 syncLoadAssets();
 
-interface ErrnoException extends Error {
-    errno?: number;
-    code?: string;
-    path?: string;
-    syscall?: string;
-    stack?: string;
-}
-
-process.on('unhandledRejection', err => {
-    console.clear();
-    console.error('Unexpected error', err);
-    process.exit(1);
-});
-
 const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => {
     return assets[entrypoint] ? assets[entrypoint].css && typeof assets[entrypoint].css === "object" ?
         assets[entrypoint].css.map((asset: string) =>
@@ -121,11 +107,6 @@ app.get("*", handleErrors(async function (req: express.Request, res: express.Res
 const port = process.env.PORT || 3000;
 
 const httpServer = createServer(app);
-
-httpServer.once('error', function (err: ErrnoException) {
-    console.error(err.message);
-    process.exit(1);
-});
 
 httpServer.listen(port, () => {
     console.log(`🚀 Server started on port ${port}`);
