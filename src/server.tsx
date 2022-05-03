@@ -77,6 +77,7 @@ const renderApp = (req: express.Request, res: express.Response) => {
                         content="A template. A React app."
                         />
                         <link rel="apple-touch-icon" href="/logo192.png" />
+			<link rel="manifest" href="/manifest.json" />
                         <title>React App</title>
                         ${cssLinksFromAssets(assets, 'client')}
                     </head><body><div id="root">`);

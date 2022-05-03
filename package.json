@@ -41,7 +41,7 @@
     "sass": "1.51.0",
     "sass-loader": "12.6.0",
     "style-loader": "3.3.1",
-    "terser-webpack-plugin": "5.3.1",
+    "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "9.3.0",
     "typescript": "4.7.0-beta",
     "webpack": "5.72.0",
@@ -50,6 +50,7 @@
     "webpack-node-externals": "3.0.0"
   },
   "dependencies": {
+    "@lcdp/offline-plugin": "5.1.1",
     "compression": "1.7.4",
     "dotenv": "16.0.0",
     "express": "4.18.1",

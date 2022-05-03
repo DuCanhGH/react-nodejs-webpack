@@ -1,13 +1,14 @@
 const common = require("./webpack.common");
-const path = require('path');
-const fs = require('fs-extra');
+const path = require("path");
+const fs = require("fs-extra");
 const webpack = require("webpack");
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const OfflinePlugin = require("@lcdp/offline-plugin");
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, 'build');
@@ -19,6 +20,19 @@ process.env.NODE_ENV = "production";
 fs.emptyDirSync(buildDir);
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || '/';
+
+const defaultOptions = {
+    responseStrategy: 'cache-first',
+    externals: ["/"],
+    publicPath: "/",
+    ServiceWorker: {
+        events: true,
+        navigateFallbackURL: "/home",
+        publicPath: "../sw.js"
+    },
+    autoUpdate: true,
+    safeToUseOptionalCaches: true
+};
 
 const clientConfig = {
     ...common,
@@ -204,7 +218,8 @@ const clientConfig = {
             'process.env.ASSETS_MANIFEST': JSON.stringify(appAssetsManifest),
             'process.env.PUBLIC_DIR': JSON.stringify(path.resolve(rootDir, "build/public")
             ),
-        })
+        }),
+        new OfflinePlugin(Object.assign({}, defaultOptions)),
     ]
 };
 
