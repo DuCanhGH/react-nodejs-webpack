@@ -7,3 +7,4 @@
 - Before you run `npm run dev` for the first time, create dist/server.js and dist/assets.json (just empty files are okay).
 - You can try setting up HMR, I can't do that myself. For now, when you change your code, you gotta reload the page to see those changes.
 - Oh, and, you gotta restart the process when you change your tsconfig.json too :(
+- I think you can't update terser-webpack-plugin to its latest version if you gonna use @lcdp/offline-plugin because it ain't gonna build.
