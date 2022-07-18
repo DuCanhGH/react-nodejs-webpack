@@ -1,0 +1,17 @@
+logs
+*.log
+npm-debug.log*
+.DS_Store
+
+coverage
+/node_modules
+/build
+/dist
+/cache
+
+.env*
+
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+package.json
