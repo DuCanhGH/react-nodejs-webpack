@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "concurrently --handle-input -n wp-client,wp-server,nodemon \"webpack --watch --config configs/webpack.dev.client.js\" \"webpack --watch --config configs/webpack.dev.server.js\" \"nodemon dist/server.js\"",
-    "build": "webpack --config configs/webpack.prod.client.js && webpack --config configs/webpack.prod.server.js",
+    "build": "rimraf build && webpack --config configs/webpack.prod.client.js && webpack --config configs/webpack.prod.server.js",
     "start": "cross-env NODE_ENV=production node build/server.js",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
@@ -46,6 +46,7 @@
     "postcss": "8.4.14",
     "postcss-loader": "7.0.1",
     "prettier": "2.7.1",
+    "rimraf": "3.0.2",
     "sass": "1.53.0",
     "sass-loader": "13.0.2",
     "style-loader": "3.3.1",

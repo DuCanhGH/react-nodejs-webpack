@@ -17,8 +17,6 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 process.env.NODE_ENV = "production";
 
-fs.emptyDirSync(buildDir);
-
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 const clientConfig = {
