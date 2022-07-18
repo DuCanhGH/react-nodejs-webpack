@@ -1,6 +1,6 @@
 {
   "short_name": "React App",
-  "name": "A React app template, built with Webpack, Babel.",
+  "name": "A React app template, built with Webpack, SWC.",
   "icons": [
     {
       "src": "favicon.ico",
