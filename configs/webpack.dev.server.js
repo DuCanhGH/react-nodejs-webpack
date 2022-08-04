@@ -1,4 +1,5 @@
 const common = require("./webpack.common");
+const { merge } = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const fs = require("fs-extra");
@@ -11,11 +12,9 @@ const publicDir = path.resolve(rootDir, "public");
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const serverConfig = {
-  ...common,
   target: "node",
   module: {
     rules: [
-      ...common.module.rules,
       {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
@@ -67,7 +66,6 @@ const serverConfig = {
     __dirname: false,
   },
   plugins: [
-    ...common.plugins,
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[name].chunk.css",
@@ -79,4 +77,4 @@ const serverConfig = {
   ],
 };
 
-module.exports = serverConfig;
+module.exports = merge(common, serverConfig);

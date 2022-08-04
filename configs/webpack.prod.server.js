@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const webpack = require("webpack");
 const common = require("./webpack.common");
+const { merge } = require("webpack-merge");
 const CompressionPlugin = require("compression-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
@@ -16,12 +17,10 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 process.env.NODE_ENV = "production";
 
 const serverConfig = {
-  ...common,
   target: "node",
   mode: "production",
   module: {
     rules: [
-      ...common.module.rules,
       {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
@@ -60,7 +59,6 @@ const serverConfig = {
     filename: "../server.js",
   },
   optimization: {
-    ...common.optimization,
     minimize: true,
     splitChunks: {
       cacheGroups: {
@@ -73,7 +71,6 @@ const serverConfig = {
       },
     },
     minimizer: [
-      ...common.optimization.minimizer,
       new TerserPlugin({
         terserOptions: {
           parse: {
@@ -102,7 +99,6 @@ const serverConfig = {
     __dirname: false,
   },
   plugins: [
-    ...common.plugins,
     new MiniCssExtractPlugin({
       filename: "static/css/[name]-[contenthash:8].css",
       chunkFilename: "static/css/[name]-[contenthash:8].chunk.css",
@@ -121,4 +117,4 @@ const serverConfig = {
   ],
 };
 
-module.exports = serverConfig;
+module.exports = merge(common, serverConfig);

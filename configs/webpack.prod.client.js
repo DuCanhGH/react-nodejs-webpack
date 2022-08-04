@@ -1,4 +1,5 @@
 const common = require("./webpack.common");
+const { merge } = require("webpack-merge");
 const path = require("path");
 const fs = require("fs-extra");
 const webpack = require("webpack");
@@ -20,11 +21,9 @@ process.env.NODE_ENV = "production";
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 const clientConfig = {
-  ...common,
   mode: "production",
   module: {
     rules: [
-      ...common.module.rules,
       {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
@@ -65,7 +64,6 @@ const clientConfig = {
     assetModuleFilename: "static/media/[name].[hash][ext]",
   },
   optimization: {
-    ...common.optimization,
     minimize: true,
     splitChunks: {
       cacheGroups: {
@@ -78,7 +76,6 @@ const clientConfig = {
       },
     },
     minimizer: [
-      ...common.optimization.minimizer,
       new TerserPlugin({
         terserOptions: {
           parse: {
@@ -125,7 +122,6 @@ const clientConfig = {
     ],
   },
   plugins: [
-    ...common.plugins,
     new MiniCssExtractPlugin({
       filename: "static/css/[name]-[contenthash:8].css",
       chunkFilename: "static/css/[name]-[contenthash:8].chunk.css",
@@ -145,9 +141,7 @@ const clientConfig = {
         const noChunkFiles = new Set();
         files.forEach((file) => {
           if (file.isChunk) {
-            const groups = ((file.chunk || {})._groups || []).forEach((group) =>
-              entrypoints.add(group),
-            );
+            ((file.chunk || {})._groups || []).forEach((group) => entrypoints.add(group));
           } else {
             noChunkFiles.add(file);
           }
@@ -210,4 +204,4 @@ const clientConfig = {
   ],
 };
 
-module.exports = clientConfig;
+module.exports = merge(common, clientConfig);

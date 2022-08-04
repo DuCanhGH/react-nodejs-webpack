@@ -1,5 +1,5 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
-import { clientsClaim , HandlerCallbackOptions } from "workbox-core";
+import { clientsClaim, HandlerCallbackOptions } from "workbox-core";
 import { NavigationRoute, registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate, CacheFirst } from "workbox-strategies";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";

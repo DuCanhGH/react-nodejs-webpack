@@ -1,4 +1,5 @@
 const common = require("./webpack.common");
+const { merge } = require("webpack-merge");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 const fs = require("fs-extra");
@@ -13,10 +14,8 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 const clientConfig = {
-  ...common,
   module: {
     rules: [
-      ...common.module.rules,
       {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
@@ -65,7 +64,6 @@ const clientConfig = {
     quiet: true,
   },
   optimization: {
-    ...common.optimization,
     splitChunks: {
       cacheGroups: {
         vendor: {
@@ -79,7 +77,6 @@ const clientConfig = {
   },
   devtool: "inline-source-map",
   plugins: [
-    ...common.plugins,
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[name].chunk.css",
@@ -92,9 +89,7 @@ const clientConfig = {
         const noChunkFiles = new Set();
         files.forEach((file) => {
           if (file.isChunk) {
-            const groups = ((file.chunk || {})._groups || []).forEach((group) =>
-              entrypoints.add(group),
-            );
+            ((file.chunk || {})._groups || []).forEach((group) => entrypoints.add(group));
           } else {
             noChunkFiles.add(file);
           }
@@ -145,4 +140,4 @@ const clientConfig = {
   ],
 };
 
-module.exports = clientConfig;
+module.exports = merge(common, clientConfig);
