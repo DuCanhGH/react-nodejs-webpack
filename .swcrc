@@ -1,10 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/swcrc",
+  "module": {
+    "type": "es6",
+    "lazy": true,
+    "noInterop": true
+  },
   "jsc": {
     "parser": {
       "syntax": "typescript",
       "tsx": true,
-      "dynamicImport": false,
+      "dynamicImport": true,
       "decorators": false
     },
     "transform": {
