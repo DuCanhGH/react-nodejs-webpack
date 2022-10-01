@@ -1,10 +1,12 @@
-import { Routes, Route, Link } from "react-router-dom";
-import { Fragment } from "react";
-import styles from "./app.module.sass";
-import styles2 from "./adu.module.scss";
 import "./app.css";
-import logo from "./logo.svg";
+
+import { Fragment } from "react";
 import ReactMarkdown from "react-markdown";
+import { Link, Route, Routes } from "react-router-dom";
+
+import styles2 from "./adu.module.scss";
+import styles from "./app.module.sass";
+import logo from "./logo.svg";
 //an example of how you can use css/sass/scss files.
 
 const Dak2 = () => {
@@ -12,7 +14,7 @@ const Dak2 = () => {
     <Fragment>
       <div className="App">
         <header className="App-header">
-          <ReactMarkdown children="*hehe*"/>
+          <ReactMarkdown children="*hehe*" />
           <img src={logo} className="App-logo" alt="logo" />
           <p className={styles.hehe}>
             Edit <code>src/App.tsx</code>, save and reload to see the changes.

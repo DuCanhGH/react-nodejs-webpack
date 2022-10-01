@@ -1,14 +1,15 @@
-import webpack from "webpack";
-import webpackMerge from "webpack-merge";
-import { WebpackManifestPlugin } from "webpack-manifest-plugin";
-import path from "path";
+import CompressionPlugin from "compression-webpack-plugin";
+import CopyPlugin from "copy-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
-import CopyPlugin from "copy-webpack-plugin";
+import path from "path";
 import TerserPlugin from "terser-webpack-plugin";
+import webpack from "webpack";
+import { WebpackManifestPlugin } from "webpack-manifest-plugin";
+import webpackMerge from "webpack-merge";
 import WorkboxPlugin from "workbox-webpack-plugin";
-import CompressionPlugin from "compression-webpack-plugin";
+
 import common from "./webpack.common.js";
 
 const { merge } = webpackMerge;
@@ -21,9 +22,9 @@ process.env.NODE_ENV = "production";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
-/** 
- * @type {import('webpack').Configuration} 
-*/
+/**
+ * @type {import('webpack').Configuration}
+ */
 const clientConfig = {
   mode: "production",
   module: {
@@ -111,8 +112,7 @@ const clientConfig = {
           sourceMap: process.env.SOURCE_MAP || true,
         },
         minify: async (data, inputMap, minimizerOptions) => {
-          // eslint-disable-next-line global-require
-          const CleanCSS = require("clean-css");
+          const CleanCSS = await import("clean-css").then((a) => a.default);
           const [[filename, input]] = Object.entries(data);
           const minifiedCss = await new CleanCSS({ sourceMap: minimizerOptions.sourceMap }).minify({
             [filename]: {

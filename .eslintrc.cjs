@@ -14,7 +14,7 @@ module.exports = {
     "prettier",
   ],
   parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint", "jsx-a11y"],
+  plugins: ["@typescript-eslint", "jsx-a11y", "simple-import-sort"],
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: ["tsconfig.json", "tsconfig.eslint.json"],
@@ -29,5 +29,7 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
     "no-extra-boolean-cast": "off",
+    "simple-import-sort/imports": "warn",
+    "simple-import-sort/exports": "warn",
   },
 };

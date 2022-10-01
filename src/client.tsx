@@ -1,7 +1,8 @@
-import { hydrateRoot } from "react-dom/client";
-import Dak2 from "./App";
-import { BrowserRouter } from "react-router-dom";
 import { StrictMode } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+
+import Dak2 from "./App";
 
 const container = document.getElementById("root"); //HTML template must have an element that uses this id: root.
 

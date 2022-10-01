@@ -1,9 +1,10 @@
-import webpack from "webpack";
-import webpackMerge from "webpack-merge";
-import { WebpackManifestPlugin } from "webpack-manifest-plugin";
-import path from "path";
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import path from "path";
+import webpack from "webpack";
+import { WebpackManifestPlugin } from "webpack-manifest-plugin";
+import webpackMerge from "webpack-merge";
+
 import common from "./webpack.common.js";
 
 const { merge } = webpackMerge;
@@ -14,9 +15,9 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
-/** 
- * @type {import('webpack').Configuration} 
-*/
+/**
+ * @type {import('webpack').Configuration}
+ */
 const clientConfig = {
   target: "web",
   mode: "development",

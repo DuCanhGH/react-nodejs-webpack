@@ -1,6 +1,6 @@
-import webpack from "webpack";
-import path from "path";
 import fs from "fs-extra";
+import path from "path";
+import webpack from "webpack";
 
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");

@@ -1,9 +1,9 @@
-import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
-import { clientsClaim, HandlerCallbackOptions } from "workbox-core";
-import { NavigationRoute, registerRoute } from "workbox-routing";
-import { StaleWhileRevalidate, NetworkFirst } from "workbox-strategies";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { clientsClaim, HandlerCallbackOptions } from "workbox-core";
 import { ExpirationPlugin } from "workbox-expiration";
+import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
+import { NavigationRoute, registerRoute } from "workbox-routing";
+import { NetworkFirst, StaleWhileRevalidate } from "workbox-strategies";
 
 declare let self: ServiceWorkerGlobalScope;
 

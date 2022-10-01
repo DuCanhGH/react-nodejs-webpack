@@ -1,8 +1,9 @@
-import webpack from "webpack";
-import webpackMerge from "webpack-merge";
+import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
-import fs from "fs-extra";
+import webpack from "webpack";
+import webpackMerge from "webpack-merge";
+
 import common from "./webpack.common.js";
 
 const { merge } = webpackMerge;

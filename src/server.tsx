@@ -1,13 +1,15 @@
+import "dotenv/config";
+
+import { html } from "common-tags";
+import compression from "compression";
 import express from "express";
+import fs from "fs-extra";
+import { createServer } from "http";
+import { ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
+
 import Dak2 from "./App";
-import "dotenv/config";
-import { createServer } from "http";
-import fs from "fs-extra";
-import compression from "compression";
-import { html } from "common-tags";
-import { ReactElement } from "react";
 
 let assets: string[];
 

@@ -1,8 +1,9 @@
-import webpack from "webpack";
-import webpackMerge from "webpack-merge";
-import path from "path";
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import path from "path";
+import webpack from "webpack";
+import webpackMerge from "webpack-merge";
+
 import common from "./webpack.common.js";
 
 const { merge } = webpackMerge;
@@ -14,9 +15,9 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 process.env.NODE_ENV = "production";
 
-/** 
- * @type {import('webpack').Configuration} 
-*/
+/**
+ * @type {import('webpack').Configuration}
+ */
 const serverConfig = {
   target: "node16.17",
   mode: "production",
@@ -55,7 +56,7 @@ const serverConfig = {
   },
   externals: {
     express: "express",
-  },  
+  },
   output: {
     publicPath: "/",
     path: outputDir,
