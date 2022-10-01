@@ -1,7 +1,7 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
 import { clientsClaim, HandlerCallbackOptions } from "workbox-core";
 import { NavigationRoute, registerRoute } from "workbox-routing";
-import { StaleWhileRevalidate, CacheFirst } from "workbox-strategies";
+import { StaleWhileRevalidate, NetworkFirst } from "workbox-strategies";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
 import { ExpirationPlugin } from "workbox-expiration";
 
@@ -32,7 +32,7 @@ registerRoute(
 );
 
 const navigationHandler = async (params: FetchEvent | HandlerCallbackOptions) => {
-  return await new CacheFirst().handle(params);
+  return await new NetworkFirst().handle(params);
 };
 
 registerRoute(new NavigationRoute(navigationHandler));

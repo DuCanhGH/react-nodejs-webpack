@@ -1,5 +1,5 @@
 import { hydrateRoot } from "react-dom/client";
-import Dak2 from "App";
+import Dak2 from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { StrictMode } from "react";
 

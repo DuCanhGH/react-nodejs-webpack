@@ -1,18 +1,21 @@
-const common = require("./webpack.common");
-const { merge } = require("webpack-merge");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const path = require("path");
-const fs = require("fs-extra");
-const nodeExternals = require("webpack-node-externals");
-const webpack = require("webpack");
+import webpack from "webpack";
+import webpackMerge from "webpack-merge";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import path from "path";
+import fs from "fs-extra";
+import common from "./webpack.common.js";
+
+const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "dist");
 const srcDir = path.resolve(rootDir, "src");
-const publicDir = path.resolve(rootDir, "public");
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
+/**
+ * @type {import('webpack').Configuration}
+ */
 const serverConfig = {
-  target: "node",
+  target: "node16.17",
   module: {
     rules: [
       {
@@ -47,19 +50,17 @@ const serverConfig = {
   entry: {
     server: path.join(srcDir, "server"),
   },
-  externals: [nodeExternals()],
   output: {
     publicPath: "/",
     path: buildDir,
     filename: "server.js",
+    module: true,
+    library: {
+      type: "module",
+    },
   },
-  devServer: {
-    disableHostCheck: true,
-    clientLogLevel: "none",
-    publicPath: publicDir,
-    noInfo: true,
-    overlay: false,
-    quiet: true,
+  externals: {
+    express: "express",
   },
   devtool: "inline-source-map",
   node: {
@@ -75,6 +76,9 @@ const serverConfig = {
       "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "public")),
     }),
   ],
+  experiments: {
+    outputModule: true,
+  },
 };
 
-module.exports = merge(common, serverConfig);
+export default merge(common, serverConfig);

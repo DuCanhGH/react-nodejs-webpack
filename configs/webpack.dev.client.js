@@ -1,19 +1,26 @@
-const common = require("./webpack.common");
-const { merge } = require("webpack-merge");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const path = require("path");
-const fs = require("fs-extra");
-const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
-const webpack = require("webpack");
+import webpack from "webpack";
+import webpackMerge from "webpack-merge";
+import { WebpackManifestPlugin } from "webpack-manifest-plugin";
+import path from "path";
+import fs from "fs-extra";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import common from "./webpack.common.js";
+
+const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "dist");
 const srcDir = path.resolve(rootDir, "src");
-const publicDir = path.resolve(rootDir, "public");
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
+/** 
+ * @type {import('webpack').Configuration} 
+*/
 const clientConfig = {
+  target: "web",
+  mode: "development",
+  name: "client",
   module: {
     rules: [
       {
@@ -43,9 +50,6 @@ const clientConfig = {
       },
     ],
   },
-  target: "web",
-  mode: "development",
-  name: "client",
   entry: {
     client: path.resolve(srcDir, "client"),
   },
@@ -54,14 +58,10 @@ const clientConfig = {
     path: buildDir,
     filename: "[name].js",
     chunkFilename: "[name].chunk.js",
-  },
-  devServer: {
-    disableHostCheck: true,
-    clientLogLevel: "none",
-    publicPath: publicDir,
-    noInfo: true,
-    overlay: false,
-    quiet: true,
+    module: true,
+    library: {
+      type: "module",
+    },
   },
   optimization: {
     splitChunks: {
@@ -138,6 +138,9 @@ const clientConfig = {
       "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "public")),
     }),
   ],
+  experiments: {
+    outputModule: true,
+  },
 };
 
-module.exports = merge(common, clientConfig);
+export default merge(common, clientConfig);

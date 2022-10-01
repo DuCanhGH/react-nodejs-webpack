@@ -1,10 +1,11 @@
-const path = require("path");
-const fs = require("fs-extra");
-const webpack = require("webpack");
+import webpack from "webpack";
+import path from "path";
+import fs from "fs-extra";
+
 const rootDir = fs.realpathSync(process.cwd());
 const srcDir = path.resolve(rootDir, "src");
 const buildDir = path.resolve(rootDir, "build");
-const appAssetsManifest = path.resolve(buildDir, "assets.json");
+export const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const common = {
   module: {
@@ -28,6 +29,4 @@ const common = {
   },
 };
 
-module.exports = common;
-
-exports.appAssetsManifest = appAssetsManifest;
+export default common;

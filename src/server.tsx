@@ -1,7 +1,7 @@
 import express from "express";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
-import Dak2 from "App";
+import Dak2 from "./App";
 import "dotenv/config";
 import { createServer } from "http";
 import fs from "fs-extra";
@@ -11,16 +11,18 @@ import { ReactElement } from "react";
 
 let assets: string[];
 
-const syncLoadAssets = () => {
+const syncLoadAssets = async () => {
   if (!process.env.ASSETS_MANIFEST) {
     throw new Error("Environment variable ASSETS_MANIFEST not specified.");
   }
   if (fs.existsSync(process.env.ASSETS_MANIFEST)) {
-    assets = require(process.env.ASSETS_MANIFEST);
+    assets = await import(process.env.ASSETS_MANIFEST);
   }
 };
 
-syncLoadAssets();
+(async () => {
+  await syncLoadAssets();
+})();
 
 const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => {
   return assets[entrypoint]
@@ -36,7 +38,7 @@ const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string)
   return assets[entrypoint] ? (
     assets[entrypoint].js && typeof assets[entrypoint].js === "object" ? (
       assets[entrypoint].js.map((asset: string) => (
-        <script src={asset} key={`asset-scripts-${asset}`}></script>
+        <script src={asset} key={`asset-scripts-${asset}`} type="module"></script>
       ))
     ) : (
       <></>

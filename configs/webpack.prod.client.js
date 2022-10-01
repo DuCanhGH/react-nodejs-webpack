@@ -1,16 +1,17 @@
-const common = require("./webpack.common");
-const { merge } = require("webpack-merge");
-const path = require("path");
-const fs = require("fs-extra");
-const webpack = require("webpack");
-const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
-const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const WorkboxPlugin = require("workbox-webpack-plugin");
+import webpack from "webpack";
+import webpackMerge from "webpack-merge";
+import { WebpackManifestPlugin } from "webpack-manifest-plugin";
+import path from "path";
+import fs from "fs-extra";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
+import CopyPlugin from "copy-webpack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
+import WorkboxPlugin from "workbox-webpack-plugin";
+import CompressionPlugin from "compression-webpack-plugin";
+import common from "./webpack.common.js";
 
+const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "build");
 const srcDir = path.resolve(rootDir, "src");
@@ -20,6 +21,9 @@ process.env.NODE_ENV = "production";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
+/** 
+ * @type {import('webpack').Configuration} 
+*/
 const clientConfig = {
   mode: "production",
   module: {
@@ -62,6 +66,10 @@ const clientConfig = {
     filename: "static/js/[name]-[contenthash:8].js",
     chunkFilename: "static/js/[name]-[contenthash:8].chunk.js",
     assetModuleFilename: "static/media/[name].[hash][ext]",
+    module: true,
+    library: {
+      type: "module",
+    },
   },
   optimization: {
     minimize: true,
@@ -202,6 +210,9 @@ const clientConfig = {
       "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "build/public")),
     }),
   ],
+  experiments: {
+    outputModule: true,
+  },
 };
 
-module.exports = merge(common, clientConfig);
+export default merge(common, clientConfig);
