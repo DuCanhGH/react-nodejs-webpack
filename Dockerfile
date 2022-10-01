@@ -1,7 +1,5 @@
 FROM node:16.17.1-alpine
 
-ENV NODE_ENV=production
-
 WORKDIR /app
 
 COPY ["package.json", "pnpm-lock.yaml", "./"]
@@ -13,6 +11,8 @@ RUN pnpm install
 RUN pnpm build
 
 RUN pnpm prune --production
+
+ENV NODE_ENV=production
 
 COPY . .
 
