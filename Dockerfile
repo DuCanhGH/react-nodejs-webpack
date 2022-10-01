@@ -8,12 +8,12 @@ RUN npm i -g pnpm
 
 RUN pnpm install
 
-RUN pnpm build
-
-RUN pnpm prune --production
+COPY . .
 
 ENV NODE_ENV=production
 
-COPY . .
+RUN pnpm build
+
+RUN pnpm prune --production
 
 CMD ["pnpm", "start"]
