@@ -1,13 +1,14 @@
+// @ts-check
+
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
-import webpackMerge from "webpack-merge";
+import { merge } from "webpack-merge";
 
 import common from "./webpack.common.js";
 
-const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "dist");
 const srcDir = path.resolve(rootDir, "src");
@@ -28,9 +29,12 @@ const clientConfig = {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: { importLoaders: 1, modules: true } },
+          {
+            loader: "css-loader",
+            options: { importLoaders: 1, modules: true, sourceMap: !!process.env.DEV_SOURCE_MAP },
+          },
           "postcss-loader",
-          "sass-loader",
+          { loader: "sass-loader", options: { sourceMap: !!process.env.DEV_SOURCE_MAP } },
         ],
       },
       {
@@ -70,6 +74,7 @@ const clientConfig = {
         vendor: {
           chunks: "initial",
           name: "vendor",
+          // @ts-expect-error
           test: (module) => /node_modules/.test(module.resource),
           enforce: true,
         },
@@ -90,6 +95,7 @@ const clientConfig = {
         const noChunkFiles = new Set();
         files.forEach((file) => {
           if (file.isChunk) {
+            // @ts-expect-error
             ((file.chunk || {})._groups || []).forEach((group) => entrypoints.add(group));
           } else {
             noChunkFiles.add(file);
@@ -100,9 +106,13 @@ const clientConfig = {
           const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
           const allFiles = []
             .concat(
-              ...(entry.chunks || []).map((chunk) =>
-                chunk.files.map((path) => !path.startsWith("/.") && clientPublicPath + path),
-              ),
+              ...(entry.chunks || []).map((chunk) => {
+                const returnArr = [];
+                chunk.files.forEach(
+                  (path) => !path.startsWith("/.") && returnArr.push(clientPublicPath + path),
+                );
+                return returnArr;
+              }),
             )
             .filter(Boolean);
 
@@ -144,4 +154,5 @@ const clientConfig = {
   },
 };
 
+// @ts-expect-error
 export default merge(common, clientConfig);

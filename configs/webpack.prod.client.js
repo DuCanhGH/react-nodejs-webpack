@@ -1,3 +1,5 @@
+// @ts-check
+
 import CompressionPlugin from "compression-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
@@ -7,12 +9,11 @@ import path from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
-import webpackMerge from "webpack-merge";
+import { merge } from "webpack-merge";
 import WorkboxPlugin from "workbox-webpack-plugin";
 
 import common from "./webpack.common.js";
 
-const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "build");
 const srcDir = path.resolve(rootDir, "src");
@@ -33,9 +34,12 @@ const clientConfig = {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: { importLoaders: 1, modules: true } },
+          {
+            loader: "css-loader",
+            options: { importLoaders: 1, modules: true, sourceMap: !!process.env.PROD_SOURCE_MAP },
+          },
           "postcss-loader",
-          "sass-loader",
+          { loader: "sass-loader", options: { sourceMap: !!process.env.PROD_SOURCE_MAP } },
         ],
       },
       {
@@ -75,6 +79,7 @@ const clientConfig = {
         vendor: {
           chunks: "initial",
           name: "vendor",
+          // @ts-expect-error
           test: (module) => /node_modules/.test(module.resource),
           enforce: true,
         },
@@ -84,11 +89,10 @@ const clientConfig = {
       new TerserPlugin({
         terserOptions: {
           parse: {
-            ecma: 8,
+            ecma: 2016,
           },
           compress: {
             ecma: 5,
-            warnings: false,
             comparisons: false,
             inline: 2,
           },
@@ -100,17 +104,15 @@ const clientConfig = {
             comments: false,
             ascii_only: true,
           },
-          sourceMap: process.env.SOURCE_MAP ?? true,
+          sourceMap: !!process.env.PROD_SOURCE_MAP ?? true,
         },
       }),
       new CssMinimizerPlugin({
-        minimizerOptions: {
-          sourceMap: process.env.SOURCE_MAP || true,
-        },
+        minimizerOptions: {},
         minify: async (data, inputMap, minimizerOptions) => {
           const CleanCSS = await import("clean-css").then((a) => a.default);
           const [[filename, input]] = Object.entries(data);
-          const minifiedCss = await new CleanCSS({ sourceMap: minimizerOptions.sourceMap }).minify({
+          const minifiedCss = new CleanCSS({ sourceMap: minimizerOptions.sourceMap }).minify({
             [filename]: {
               styles: input,
               sourceMap: inputMap,
@@ -118,6 +120,7 @@ const clientConfig = {
           });
           return {
             code: minifiedCss.styles,
+            // @ts-expect-error
             map: minifiedCss.sourceMap ? minifiedCss.sourceMap.toJSON() : "",
             warnings: minifiedCss.warnings,
           };
@@ -145,6 +148,7 @@ const clientConfig = {
         const noChunkFiles = new Set();
         files.forEach((file) => {
           if (file.isChunk) {
+            // @ts-expect-error
             ((file.chunk || {})._groups || []).forEach((group) => entrypoints.add(group));
           } else {
             noChunkFiles.add(file);
@@ -155,9 +159,13 @@ const clientConfig = {
           const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
           const allFiles = []
             .concat(
-              ...(entry.chunks || []).map((chunk) =>
-                chunk.files.map((path) => !path.startsWith("/.") && clientPublicPath + path),
-              ),
+              ...(entry.chunks || []).map((chunk) => {
+                const returnArr = [];
+                chunk.files.forEach(
+                  (path) => !path.startsWith("/.") && returnArr.push(clientPublicPath + path),
+                );
+                return returnArr;
+              }),
             )
             .filter(Boolean);
 
@@ -208,4 +216,5 @@ const clientConfig = {
   ],
 };
 
+//@ts-expect-error
 export default merge(common, clientConfig);

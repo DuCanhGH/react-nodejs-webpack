@@ -1,12 +1,13 @@
+// @ts-check
+
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
-import webpackMerge from "webpack-merge";
+import { merge } from "webpack-merge";
 
 import common from "./webpack.common.js";
 
-const { merge } = webpackMerge;
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "build");
 const outputDir = path.resolve(buildDir, "public");
@@ -27,9 +28,12 @@ const serverConfig = {
         test: /\.module\.(css|scss|sass)$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: { importLoaders: 1, modules: true } },
+          {
+            loader: "css-loader",
+            options: { importLoaders: 1, modules: true, sourceMap: !!process.env.PROD_SOURCE_MAP },
+          },
           "postcss-loader",
-          "sass-loader",
+          { loader: "sass-loader", options: { sourceMap: !!process.env.PROD_SOURCE_MAP } },
         ],
       },
       {
@@ -86,4 +90,5 @@ const serverConfig = {
   },
 };
 
+// @ts-expect-error
 export default merge(common, serverConfig);
