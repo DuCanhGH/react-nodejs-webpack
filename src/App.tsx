@@ -1,6 +1,5 @@
 import "./app.css";
 
-import { Fragment } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, Route, Routes } from "react-router-dom";
 
@@ -11,7 +10,7 @@ import logo from "./logo.svg";
 
 const Dak2 = () => {
   return (
-    <Fragment>
+    <>
       <div className="App">
         <header className="App-header">
           <ReactMarkdown children="*hehe*" />
@@ -46,7 +45,7 @@ const Dak2 = () => {
           </div>
         </header>
       </div>
-    </Fragment>
+    </>
   );
 };
 

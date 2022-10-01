@@ -67,10 +67,6 @@ const clientConfig = {
     filename: "static/js/[name]-[contenthash:8].js",
     chunkFilename: "static/js/[name]-[contenthash:8].chunk.js",
     assetModuleFilename: "static/media/[name].[hash][ext]",
-    module: true,
-    library: {
-      type: "module",
-    },
   },
   optimization: {
     minimize: true,
@@ -210,9 +206,6 @@ const clientConfig = {
       "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "build/public")),
     }),
   ],
-  experiments: {
-    outputModule: true,
-  },
 };
 
 export default merge(common, clientConfig);

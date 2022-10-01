@@ -5,7 +5,7 @@ import compression from "compression";
 import express from "express";
 import fs from "fs-extra";
 import { createServer } from "http";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 
@@ -40,7 +40,11 @@ const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string)
   return assets[entrypoint] ? (
     assets[entrypoint].js && typeof assets[entrypoint].js === "object" ? (
       assets[entrypoint].js.map((asset: string) => (
-        <script src={asset} key={`asset-scripts-${asset}`} type="module"></script>
+        <script
+          src={asset}
+          key={`asset-scripts-${asset}`}
+          type={process.env.NODE_ENV !== "production" ? "module" : undefined}
+        ></script>
       ))
     ) : (
       <></>
