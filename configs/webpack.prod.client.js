@@ -1,5 +1,7 @@
 // @ts-check
 
+import "dotenv/config";
+
 import CompressionPlugin from "compression-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
@@ -12,6 +14,7 @@ import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 import { merge } from "webpack-merge";
 import WorkboxPlugin from "workbox-webpack-plugin";
 
+import convertBoolean from "./utils/bool_conv.js";
 import common from "./webpack.common.js";
 
 const rootDir = fs.realpathSync(process.cwd());
@@ -36,10 +39,17 @@ const clientConfig = {
           MiniCssExtractPlugin.loader,
           {
             loader: "css-loader",
-            options: { importLoaders: 1, modules: true, sourceMap: !!process.env.PROD_SOURCE_MAP },
+            options: {
+              importLoaders: 1,
+              modules: true,
+              sourceMap: convertBoolean(process.env.PROD_SOURCE_MAP),
+            },
           },
           "postcss-loader",
-          { loader: "sass-loader", options: { sourceMap: !!process.env.PROD_SOURCE_MAP } },
+          {
+            loader: "sass-loader",
+            options: { sourceMap: convertBoolean(process.env.PROD_SOURCE_MAP) },
+          },
         ],
       },
       {
@@ -88,23 +98,16 @@ const clientConfig = {
     minimizer: [
       new TerserPlugin({
         terserOptions: {
-          parse: {
-            ecma: 2016,
-          },
+          ecma: 5,
           compress: {
             ecma: 5,
             comparisons: false,
-            inline: 2,
+            inline: true,
           },
           mangle: {
             safari10: true,
           },
-          output: {
-            ecma: 5,
-            comments: false,
-            ascii_only: true,
-          },
-          sourceMap: !!process.env.PROD_SOURCE_MAP ?? true,
+          sourceMap: convertBoolean(process.env.PROD_SOURCE_MAP) ?? true,
         },
       }),
       new CssMinimizerPlugin({
@@ -128,6 +131,7 @@ const clientConfig = {
       }),
     ],
   },
+  devtool: convertBoolean(process.env.PROD_SOURCE_MAP) ? "source-map" : undefined,
   plugins: [
     new MiniCssExtractPlugin({
       filename: "static/css/[name]-[contenthash:8].css",
@@ -216,5 +220,4 @@ const clientConfig = {
   ],
 };
 
-//@ts-expect-error
 export default merge(common, clientConfig);

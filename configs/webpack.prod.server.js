@@ -1,11 +1,14 @@
 // @ts-check
 
+import "dotenv/config";
+
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 import { merge } from "webpack-merge";
 
+import convertBoolean from "./utils/bool_conv.js";
 import common from "./webpack.common.js";
 
 const rootDir = fs.realpathSync(process.cwd());
@@ -30,10 +33,17 @@ const serverConfig = {
           MiniCssExtractPlugin.loader,
           {
             loader: "css-loader",
-            options: { importLoaders: 1, modules: true, sourceMap: !!process.env.PROD_SOURCE_MAP },
+            options: {
+              importLoaders: 1,
+              modules: true,
+              sourceMap: convertBoolean(process.env.PROD_SOURCE_MAP),
+            },
           },
           "postcss-loader",
-          { loader: "sass-loader", options: { sourceMap: !!process.env.PROD_SOURCE_MAP } },
+          {
+            loader: "sass-loader",
+            options: { sourceMap: convertBoolean(process.env.PROD_SOURCE_MAP) },
+          },
         ],
       },
       {
@@ -90,5 +100,4 @@ const serverConfig = {
   },
 };
 
-// @ts-expect-error
 export default merge(common, serverConfig);

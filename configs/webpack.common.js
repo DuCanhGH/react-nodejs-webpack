@@ -1,3 +1,4 @@
+// @ts-check
 import fs from "fs-extra";
 import path from "path";
 import webpack from "webpack";
@@ -7,6 +8,9 @@ const srcDir = path.resolve(rootDir, "src");
 const buildDir = path.resolve(rootDir, "build");
 export const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
+/**
+ * @type {import('webpack').Configuration}
+ */
 const common = {
   module: {
     rules: [
