@@ -9,7 +9,7 @@
   "scripts": {
     "dev:client": "webpack --watch --config configs/webpack.dev.client.js",
     "dev:server": "webpack --watch --config configs/webpack.dev.server.js",
-    "dev:run_server": "nodemon dist/server.js",
+    "dev:run_server": "nodemon --watch dist dist/server.js",
     "dev": "run-p dev:*",
     "build": "rimraf build && webpack --config configs/webpack.prod.client.js && webpack --config configs/webpack.prod.server.js",
     "start": "cross-env NODE_ENV=production node build/server.js",

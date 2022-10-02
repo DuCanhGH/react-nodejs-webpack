@@ -8,7 +8,6 @@ import { createServer } from "http";
 import type { ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
-
 import Dak2 from "./App";
 
 let assets: string[];
@@ -118,13 +117,13 @@ if (process.env.NODE_ENV !== "production") {
 
 app.use(express.static(process.env.PUBLIC_DIR ?? "public"));
 
-app.get("/api", (req: express.Request, res: express.Response) => {
+app.get("/api", (_req, res) => {
   res.status(404).json({ message: "hehe", err: true });
 });
 
 app.get(
   "*",
-  handleErrors(function (req: express.Request, res: express.Response) {
+  handleErrors(function (req, res) {
     renderApp(req, res);
   }),
 );

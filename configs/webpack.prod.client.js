@@ -151,7 +151,9 @@ const clientConfig = {
         files.forEach((file) => {
           if (file.isChunk) {
             // @ts-expect-error
-            ((file.chunk || {})._groups || []).forEach((group) => entrypoints.add(group));
+            ((file.chunk || {})._groups || []).forEach((/** @type {any} */ group) =>
+              entrypoints.add(group),
+            );
           } else {
             noChunkFiles.add(file);
           }
@@ -159,15 +161,21 @@ const clientConfig = {
         const entries = [...entrypoints];
         const entryArrayManifest = entries.reduce((acc, entry) => {
           const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
+          /** @type {any[]} */
           const allFiles = []
             .concat(
-              ...(entry.chunks || []).map((chunk) => {
-                const returnArr = [];
-                chunk.files.forEach(
-                  (path) => !path.startsWith("/.") && returnArr.push(clientPublicPath + path),
-                );
-                return returnArr;
-              }),
+              ...(entry.chunks || []).map(
+                /** @param {any} chunk */
+                (chunk) => {
+                  /** @type {string[]} */
+                  const returnArr = [];
+                  chunk.files.forEach(
+                    /** @param {string} path */
+                    (path) => !path.startsWith("/.") && returnArr.push(clientPublicPath + path),
+                  );
+                  return returnArr;
+                },
+              ),
             )
             .filter(Boolean);
 
@@ -177,8 +185,10 @@ const clientConfig = {
             types[fileType].push(file);
             return types;
           }, {});
-
-          const chunkIds = [].concat(...(entry.chunks || []).map((chunk) => chunk.ids));
+          /** @type {any} */
+          const chunkIds = [].concat(
+            ...(entry.chunks || []).map(/** @param {any} chunk */ (chunk) => chunk.ids),
+          );
 
           return name
             ? {
