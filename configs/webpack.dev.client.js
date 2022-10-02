@@ -19,9 +19,7 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
-/**
- * @type {import('webpack').Configuration}
- */
+/** @type {import("webpack").Configuration} */
 const clientConfig = {
   target: "web",
   mode: "development",

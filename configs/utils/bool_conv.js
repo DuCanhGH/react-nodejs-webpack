@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * @param {unknown}  value
- * @param {boolean} [strict=true]
+ * @param {unknown} value
+ * @param {boolean} [strict=true] Default is `true`
  * @returns {boolean}
  */
 const convertBoolean = (value, strict = true) => {

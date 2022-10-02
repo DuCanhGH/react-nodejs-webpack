@@ -19,9 +19,7 @@ const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
 process.env.NODE_ENV = "production";
 
-/**
- * @type {import('webpack').Configuration}
- */
+/** @type {import("webpack").Configuration} */
 const serverConfig = {
   target: "node16.17",
   mode: "production",

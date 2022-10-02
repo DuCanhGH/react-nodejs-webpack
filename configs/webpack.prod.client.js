@@ -26,9 +26,7 @@ process.env.NODE_ENV = "production";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
-/**
- * @type {import('webpack').Configuration}
- */
+/** @type {import("webpack").Configuration} */
 const clientConfig = {
   mode: "production",
   module: {

@@ -16,9 +16,7 @@ const buildDir = path.resolve(rootDir, "dist");
 const srcDir = path.resolve(rootDir, "src");
 const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
-/**
- * @type {import('webpack').Configuration}
- */
+/** @type {import("webpack").Configuration} */
 const serverConfig = {
   target: "node16.17",
   module: {

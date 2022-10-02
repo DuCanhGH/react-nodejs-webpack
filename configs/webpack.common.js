@@ -8,9 +8,7 @@ const srcDir = path.resolve(rootDir, "src");
 const buildDir = path.resolve(rootDir, "build");
 export const appAssetsManifest = path.resolve(buildDir, "assets.json");
 
-/**
- * @type {import('webpack').Configuration}
- */
+/** @type {import("webpack").Configuration} */
 const common = {
   module: {
     rules: [
