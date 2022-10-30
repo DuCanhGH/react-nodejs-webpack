@@ -110,10 +110,10 @@ const clientConfig = {
       }),
       new CssMinimizerPlugin({
         minimizerOptions: {},
-        minify: async (data, inputMap, minimizerOptions) => {
+        minify: async (data, inputMap) => {
           const CleanCSS = await import("clean-css").then((a) => a.default);
           const [[filename, input]] = Object.entries(data);
-          const minifiedCss = new CleanCSS({ sourceMap: minimizerOptions.sourceMap }).minify({
+          const minifiedCss = new CleanCSS({ sourceMap: false }).minify({
             [filename]: {
               styles: input,
               sourceMap: inputMap,

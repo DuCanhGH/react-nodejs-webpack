@@ -2,7 +2,7 @@
   "name": "react-nodejs-webpack",
   "version": "1.0.0",
   "description": "hoho",
-  "sideEffects": false,
+  "sideEffects": ["*.css", "*.sass", "*.scss"],
   "type": "module",
   "engines": {
     "node": ">=16.17.0"
