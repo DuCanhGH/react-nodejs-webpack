@@ -16,8 +16,8 @@
     "noEmit": true,
     "noImplicitAny": true,
     "jsx": "react-jsx",
-    "baseUrl": "src"
+    "baseUrl": "."
   },
-  "include": ["src", "declarations.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["declarations.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

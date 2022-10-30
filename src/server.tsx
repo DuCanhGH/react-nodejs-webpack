@@ -8,6 +8,7 @@ import { createServer } from "http";
 import type { ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
+
 import Dak2 from "./App";
 
 let assets: string[];
