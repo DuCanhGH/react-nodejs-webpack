@@ -25,5 +25,6 @@ FROM node:16-alpine AS runtime
 WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/package.json ./
 
 CMD ["npm", "run", "start"]
