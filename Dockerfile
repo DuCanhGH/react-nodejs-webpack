@@ -1,19 +1,29 @@
-FROM node:16.17.1-alpine
-
+FROM node:16-alpine AS deps
 WORKDIR /app
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-COPY ["package.json", "pnpm-lock.yaml", "./"]
-
-RUN npm i -g pnpm
-
-RUN pnpm install
-
+FROM node:16-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NODE_ENV=production
+RUN npm run build
 
-RUN pnpm build
+RUN \
+  if [ -f package-lock.json ]; then npm prune --production; \
+  elif [ -f pnpm-lock.yaml ]; then npm i -g pnpm && pnpm prune --production; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
-RUN pnpm prune --production
+FROM node:16-alpine AS runtime
+WORKDIR /app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/build ./build
 
-CMD ["pnpm", "start"]
+CMD ["npm", "run", "start"]
