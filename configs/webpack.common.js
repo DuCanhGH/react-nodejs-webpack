@@ -1,12 +1,7 @@
 // @ts-check
-import fs from "fs-extra";
-import path from "path";
 import webpack from "webpack";
 
-const rootDir = fs.realpathSync(process.cwd());
-const srcDir = path.resolve(rootDir, "src");
-const buildDir = path.resolve(rootDir, "build");
-export const appAssetsManifest = path.resolve(buildDir, "assets.json");
+import { devDir, prodDir, srcDir } from "./constants.js";
 
 /** @type {import("webpack").Configuration} */
 const common = {
@@ -25,7 +20,9 @@ const common = {
     modules: ["node_modules", srcDir],
     extensions: [".js", ".jsx", ".json", ".tsx", ".ts"],
   },
-  plugins: [new webpack.WatchIgnorePlugin({ paths: [appAssetsManifest] })],
+  plugins: [
+    new webpack.WatchIgnorePlugin({ paths: [prodDir.appAssetsManifest, devDir.appAssetsManifest] }),
+  ],
   optimization: {
     minimizer: [],
   },

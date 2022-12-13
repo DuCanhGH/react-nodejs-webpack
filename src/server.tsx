@@ -5,28 +5,36 @@ import compression from "compression";
 import express from "express";
 import fs from "fs-extra";
 import { createServer } from "http";
-import type { ReactElement } from "react";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 
 import Dak2 from "./App";
 
-let assets: string[];
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+type AssetsManifest = Record<string, Record<string, string[]>>;
+
+let assets: AssetsManifest;
 
 const syncLoadAssets = async () => {
   if (!process.env.ASSETS_MANIFEST) {
-    throw new Error("Environment variable ASSETS_MANIFEST not specified.");
+    throw new Error(
+      "Environment variable ASSETS_MANIFEST not specified. There may have been a bug in your config.",
+    );
   }
-  if (fs.existsSync(process.env.ASSETS_MANIFEST)) {
-    assets = await import(process.env.ASSETS_MANIFEST);
+  while (!assets) {
+    if (!(await fs.pathExists(process.env.ASSETS_MANIFEST))) {
+      console.warn("Haven't found assets.json yet, waiting...");
+      await delay(5000);
+      continue;
+    }
+    assets = await fs.readJSON(process.env.ASSETS_MANIFEST);
   }
 };
 
-(async () => {
-  await syncLoadAssets();
-})();
+syncLoadAssets();
 
-const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => {
+const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
   return assets[entrypoint]
     ? assets[entrypoint].css && typeof assets[entrypoint].css === "object"
       ? assets[entrypoint].css
@@ -36,7 +44,7 @@ const cssLinksFromAssets = (assets: Record<string, any>, entrypoint: string) => 
     : "";
 };
 
-const jsScriptTagsFromAssets = (assets: Record<string, any>, entrypoint: string): ReactElement => {
+const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string) => {
   return assets[entrypoint] ? (
     assets[entrypoint].js && typeof assets[entrypoint].js === "object" ? (
       assets[entrypoint].js.map((asset: string) => (

@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import Dak2 from "./App";
 
-const container = document.getElementById("root"); //HTML template must have an element that uses this id: root.
+const container = document.getElementById("root"); //HTML template must have an element that uses this id `root`.
 
 const isDev = process.env.NODE_ENV !== "production";
 

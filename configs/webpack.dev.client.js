@@ -1,55 +1,18 @@
 // @ts-check
-
 import "dotenv/config";
 
-import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
-import webpack from "webpack";
-import { WebpackManifestPlugin } from "webpack-manifest-plugin";
-import { merge } from "webpack-merge";
 
+import { devDir } from "./constants.js";
 import convertBoolean from "./utils/bool_conv.js";
-import common from "./webpack.common.js";
-
-const rootDir = fs.realpathSync(process.cwd());
-const buildDir = path.resolve(rootDir, "dist");
-const srcDir = path.resolve(rootDir, "src");
-const appAssetsManifest = path.resolve(buildDir, "assets.json");
-
-const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
+import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
+import commonClientConfig from "./webpack.common.client.js";
 
 /** @type {import("webpack").Configuration} */
-const clientConfig = {
-  target: "web",
+const devClientConfig = {
   mode: "development",
-  name: "client",
   module: {
     rules: [
-      {
-        test: /\.module\.(css|scss|sass)$/i,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: "css-loader",
-            options: {
-              importLoaders: 1,
-              modules: true,
-              sourceMap: convertBoolean(process.env.DEV_SOURCE_MAP),
-            },
-          },
-          "postcss-loader",
-          {
-            loader: "sass-loader",
-            options: { sourceMap: convertBoolean(process.env.DEV_SOURCE_MAP) },
-          },
-        ],
-      },
-      {
-        test: /\.(css|scss|sass)$/i,
-        exclude: /\.module\.(css|scss|sass)$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "sass-loader"],
-      },
       {
         test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
         use: [
@@ -63,12 +26,9 @@ const clientConfig = {
       },
     ],
   },
-  entry: {
-    client: path.resolve(srcDir, "client"),
-  },
   output: {
     publicPath: "/",
-    path: buildDir,
+    path: devDir.build,
     filename: "[name].js",
     chunkFilename: "[name].chunk.js",
     module: true,
@@ -95,77 +55,6 @@ const clientConfig = {
       filename: "[name].css",
       chunkFilename: "[name].chunk.css",
     }),
-    new WebpackManifestPlugin({
-      fileName: path.resolve(buildDir, "assets.json"),
-      writeToFileEmit: true,
-      generate: (seed, files) => {
-        const entrypoints = new Set();
-        const noChunkFiles = new Set();
-        files.forEach((file) => {
-          if (file.isChunk) {
-            // @ts-expect-error
-            ((file.chunk || {})._groups || []).forEach((/** @type {any} */ group) =>
-              entrypoints.add(group),
-            );
-          } else {
-            noChunkFiles.add(file);
-          }
-        });
-        const entries = [...entrypoints];
-        const entryArrayManifest = entries.reduce((acc, entry) => {
-          const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
-          /** @type {any[]} */
-          const allFiles = []
-            .concat(
-              ...(entry.chunks || []).map(
-                /** @param {any} chunk */
-                (chunk) => {
-                  /** @type {string[]} */
-                  const returnArr = [];
-                  chunk.files.forEach(
-                    /** @param {string} path */
-                    (path) => !path.startsWith("/.") && returnArr.push(clientPublicPath + path),
-                  );
-                  return returnArr;
-                },
-              ),
-            )
-            .filter(Boolean);
-
-          const filesByType = allFiles.reduce((types, file) => {
-            const fileType = file.slice(file.lastIndexOf(".") + 1);
-            types[fileType] = types[fileType] || [];
-            types[fileType].push(file);
-            return types;
-          }, {});
-          /** @type {any} */
-          const chunkIds = [].concat(
-            ...(entry.chunks || []).map(/** @param {any} chunk */ (chunk) => chunk.ids),
-          );
-
-          return name
-            ? {
-                ...acc,
-                [name]: { ...filesByType, chunks: chunkIds },
-              }
-            : acc;
-        }, seed);
-        entryArrayManifest["noentry"] = [...noChunkFiles]
-          .map((file) => !file.path.includes("/.") && file.path)
-          .filter(Boolean)
-          .reduce((types, file) => {
-            const fileType = file.slice(file.lastIndexOf(".") + 1);
-            types[fileType] = types[fileType] || [];
-            types[fileType].push(file);
-            return types;
-          }, {});
-        return entryArrayManifest;
-      },
-    }),
-    new webpack.DefinePlugin({
-      "process.env.ASSETS_MANIFEST": JSON.stringify(appAssetsManifest),
-      "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "public")),
-    }),
   ],
   experiments: {
     outputModule: true,
@@ -173,4 +62,4 @@ const clientConfig = {
   stats: "errors-warnings",
 };
 
-export default merge(common, clientConfig);
+export default callAndMergeConfigs(commonClientConfig, devClientConfig);
