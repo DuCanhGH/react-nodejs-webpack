@@ -1,8 +1,11 @@
 import { merge } from "webpack-merge";
 
 /**
- * @param {...(import("webpack").Configuration | import("../types").WebpackConfigFunction)} configs
- * @returns {import("../types").WebpackConfigFunction}
+ * @param {...(
+ *   | import("webpack").Configuration
+ *   | import("../shared/types").WebpackConfigFunction
+ * )} configs
+ * @returns {import("../shared/types").WebpackConfigFunction}
  */
 export const callAndMergeConfigs = (...configs) => {
   return async (env, argv) => {

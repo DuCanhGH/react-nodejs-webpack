@@ -1,6 +1,6 @@
 import "./app.css";
 
-import ReactMarkdown from "react-markdown";
+import { lazy, Suspense } from "react";
 import { Link, Route, Routes } from "react-router-dom";
 
 import styles2 from "./adu.module.scss";
@@ -8,12 +8,16 @@ import styles from "./app.module.sass";
 import logo from "./logo.svg";
 //an example of how you can use css/sass/scss files.
 
+const ReactMarkdown = lazy(() => import("react-markdown"));
+
 const Dak2 = () => {
   return (
     <>
       <div className="App">
         <header className="App-header">
-          <ReactMarkdown children="*hehe*" />
+          <Suspense fallback={<p className={styles.hehe}>Loading...</p>}>
+            <ReactMarkdown children="*hehe*" />
+          </Suspense>
           <img src={logo} className="App-logo" alt="logo" />
           <p className={styles.hehe}>
             Edit <code>src/App.tsx</code>, save and reload to see the changes.

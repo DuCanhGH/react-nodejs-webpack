@@ -5,8 +5,8 @@ import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import commonServerConfig from "./webpack.common.server.js";
+import commonServerConfig from "../common/webpack.server.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
 const rootDir = fs.realpathSync(process.cwd());
 const buildDir = path.resolve(rootDir, "dist");

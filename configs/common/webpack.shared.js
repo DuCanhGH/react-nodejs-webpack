@@ -1,7 +1,7 @@
 // @ts-check
 import webpack from "webpack";
 
-import { devDir, prodDir, srcDir } from "./constants.js";
+import { devDir, prodDir, srcDir } from "../shared/constants.js";
 
 /** @type {import("webpack").Configuration} */
 const common = {

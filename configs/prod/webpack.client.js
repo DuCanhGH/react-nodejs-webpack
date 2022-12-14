@@ -8,12 +8,13 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
+import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WorkboxPlugin from "workbox-webpack-plugin";
 
-import { prodDir, rootDir, srcDir } from "./constants.js";
-import convertBoolean from "./utils/bool_conv.js";
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import commonClientConfig from "./webpack.common.client.js";
+import commonClientConfig from "../common/webpack.client.js";
+import { prodDir, rootDir, srcDir } from "../shared/constants.js";
+import convertBoolean from "../utils/bool_conv.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
@@ -45,6 +46,7 @@ const prodClientConfig = {
   optimization: {
     minimize: true,
     splitChunks: {
+      chunks: "all",
       cacheGroups: {
         vendor: {
           chunks: "initial",
@@ -115,6 +117,10 @@ const prodClientConfig = {
     }),
     new WorkboxPlugin.InjectManifest({
       swSrc: path.resolve(srcDir, "sw.ts"),
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: convertBoolean(process.env.ANALYZER) ? "static" : "disabled",
+      reportFilename: "client.html",
     }),
   ],
 };

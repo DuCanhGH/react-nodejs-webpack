@@ -5,9 +5,9 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 
-import { prodDir } from "./constants.js";
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import commonServerConfig from "./webpack.common.server.js";
+import commonServerConfig from "../common/webpack.server.js";
+import { prodDir } from "../shared/constants.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
 const outputDir = path.resolve(prodDir.build, "public");
 

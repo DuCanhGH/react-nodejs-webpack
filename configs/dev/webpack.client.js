@@ -3,10 +3,10 @@ import "dotenv/config";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
-import { devDir } from "./constants.js";
-import convertBoolean from "./utils/bool_conv.js";
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import commonClientConfig from "./webpack.common.client.js";
+import commonClientConfig from "../common/webpack.client.js";
+import { devDir } from "../shared/constants.js";
+import convertBoolean from "../utils/bool_conv.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
 /** @type {import("webpack").Configuration} */
 const devClientConfig = {

@@ -3,17 +3,16 @@ import "dotenv/config";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
-import webpack from "webpack";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 
-import { devDir, prodDir, rootDir, srcDir } from "./constants.js";
-import convertBoolean from "./utils/bool_conv.js";
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import common from "./webpack.common.js";
+import { devDir, prodDir, srcDir } from "../shared/constants.js";
+import convertBoolean from "../utils/bool_conv.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import common from "./webpack.shared.js";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
-/** @type {import("./types").WebpackConfigFunction} */
+/** @type {import("../shared/types").WebpackConfigFunction} */
 const commonClientConfig = (_, argv) => {
   const isProd = argv.mode === "production";
   const isSourceMapEnabled = convertBoolean(
@@ -120,9 +119,6 @@ const commonClientConfig = (_, argv) => {
             }, {});
           return entryArrayManifest;
         },
-      }),
-      new webpack.DefinePlugin({
-        "process.env.PUBLIC_DIR": JSON.stringify(path.resolve(rootDir, "public")),
       }),
     ],
   };

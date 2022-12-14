@@ -5,12 +5,12 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 
-import { devDir, prodDir, rootDir, srcDir } from "./constants.js";
-import convertBoolean from "./utils/bool_conv.js";
-import { callAndMergeConfigs } from "./utils/call_and_merge_wp_configs.js";
-import common from "./webpack.common.js";
+import { devDir, prodDir, rootDir, srcDir } from "../shared/constants.js";
+import convertBoolean from "../utils/bool_conv.js";
+import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import common from "./webpack.shared.js";
 
-/** @type {import("./types").WebpackConfigFunction} */
+/** @type {import("../shared/types").WebpackConfigFunction} */
 const serverConfig = async (_, argv) => {
   const isProd = argv.mode === "production";
   const isSourceMapEnabled = convertBoolean(
