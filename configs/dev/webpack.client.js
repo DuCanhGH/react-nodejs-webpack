@@ -11,21 +11,6 @@ import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 /** @type {import("webpack").Configuration} */
 const devClientConfig = {
   mode: "development",
-  module: {
-    rules: [
-      {
-        test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-            },
-          },
-        ],
-      },
-    ],
-  },
   output: {
     publicPath: "/",
     path: devDir.build,

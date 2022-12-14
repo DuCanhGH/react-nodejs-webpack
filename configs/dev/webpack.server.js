@@ -14,21 +14,6 @@ const buildDir = path.resolve(rootDir, "dist");
 /** @type {import("webpack").Configuration} */
 const devServerConfig = {
   mode: "development",
-  module: {
-    rules: [
-      {
-        test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-            },
-          },
-        ],
-      },
-    ],
-  },
   output: {
     publicPath: "/",
     path: buildDir,

@@ -12,7 +12,7 @@ import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WorkboxPlugin from "workbox-webpack-plugin";
 
 import commonClientConfig from "../common/webpack.client.js";
-import { prodDir, rootDir, srcDir } from "../shared/constants.js";
+import { prodAssetModuleFilename, prodDir, rootDir, srcDir } from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
@@ -21,27 +21,12 @@ const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 /** @type {import("webpack").Configuration} */
 const prodClientConfig = {
   mode: "production",
-  module: {
-    rules: [
-      {
-        test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "static/media/[name].[hash].[ext]",
-            },
-          },
-        ],
-      },
-    ],
-  },
   output: {
     publicPath: clientPublicPath,
     path: path.resolve(prodDir.build, "public"),
     filename: "static/js/[name]-[contenthash:8].js",
     chunkFilename: "static/js/[name]-[contenthash:8].chunk.js",
-    assetModuleFilename: "static/media/[name].[hash][ext]",
+    assetModuleFilename: prodAssetModuleFilename,
   },
   optimization: {
     minimize: true,

@@ -25,7 +25,12 @@ const serverConfig = async (_, argv) => {
         {
           test: /\.module\.(css|scss|sass)$/i,
           use: [
-            MiniCssExtractPlugin.loader,
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                emit: false,
+              },
+            },
             {
               loader: "css-loader",
               options: {
@@ -44,7 +49,24 @@ const serverConfig = async (_, argv) => {
         {
           test: /\.(css|scss|sass)$/i,
           exclude: /\.module\.(css|scss|sass)$/i,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "sass-loader"],
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: {
+                emit: false,
+              },
+            },
+            "css-loader",
+            "postcss-loader",
+            "sass-loader",
+          ],
+        },
+        {
+          test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
+          type: "asset/resource",
+          generator: {
+            emit: false,
+          },
         },
       ],
     },

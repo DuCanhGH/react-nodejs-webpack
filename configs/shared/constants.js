@@ -20,4 +20,6 @@ const devDir = {
   appAssetsManifest: __dev_app_assets_manifest,
 };
 
-export { devDir, prodDir, rootDir, srcDir };
+const prodAssetModuleFilename = "static/media/[name].[hash][ext]";
+
+export { devDir, prodAssetModuleFilename, prodDir, rootDir, srcDir };

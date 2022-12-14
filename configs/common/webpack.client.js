@@ -47,6 +47,10 @@ const commonClientConfig = (_, argv) => {
           exclude: /\.module\.(css|scss|sass)$/i,
           use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader", "sass-loader"],
         },
+        {
+          test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
+          type: "asset/resource",
+        },
       ],
     },
     entry: {

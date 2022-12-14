@@ -6,7 +6,7 @@ import path from "path";
 import webpack from "webpack";
 
 import commonServerConfig from "../common/webpack.server.js";
-import { prodDir } from "../shared/constants.js";
+import { prodAssetModuleFilename, prodDir } from "../shared/constants.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 
 const outputDir = path.resolve(prodDir.build, "public");
@@ -14,25 +14,11 @@ const outputDir = path.resolve(prodDir.build, "public");
 /** @type {import("webpack").Configuration} */
 const prodServerConfig = {
   mode: "production",
-  module: {
-    rules: [
-      {
-        test: /\.(jpg|jpeg|png|gif|mp3|svg|ico)$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "static/media/[name].[hash].[ext]",
-            },
-          },
-        ],
-      },
-    ],
-  },
   output: {
     publicPath: "/",
     path: outputDir,
     filename: "../server.js",
+    assetModuleFilename: prodAssetModuleFilename,
     module: true,
     library: {
       type: "module",
