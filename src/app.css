@@ -49,3 +49,18 @@ code {
     transform: rotate(360deg);
   }
 }
+
+.App-button {
+  cursor: pointer;
+  transition: background-color 100ms;
+  background-color: #555555;
+  color: white;
+  font-size: calc(10px + 2vmin);
+  border: 0;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.App-button:hover {
+  background-color: #444444;
+}

@@ -13,7 +13,6 @@ const outputDir = path.resolve(prodDir.build, "public");
 
 /** @type {import("webpack").Configuration} */
 const prodServerConfig = {
-  mode: "production",
   output: {
     publicPath: "/",
     path: outputDir,
@@ -24,13 +23,7 @@ const prodServerConfig = {
       type: "module",
     },
   },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: "static/css/[name]-[contenthash:8].css",
-      chunkFilename: "static/css/[name]-[contenthash:8].chunk.css",
-    }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
-  ],
+  plugins: [new MiniCssExtractPlugin(), new webpack.optimize.ModuleConcatenationPlugin()],
   experiments: {
     outputModule: true,
   },

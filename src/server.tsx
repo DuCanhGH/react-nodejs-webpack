@@ -8,7 +8,7 @@ import { createServer } from "http";
 import { renderToPipeableStream } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 
-import Dak2 from "./App";
+import App from "./App";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -38,28 +38,23 @@ const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
   return assets[entrypoint]
     ? assets[entrypoint].css && typeof assets[entrypoint].css === "object"
       ? assets[entrypoint].css
-          .map((asset: string) => `<link rel="stylesheet" href="${asset}">`)
+          .map((asset: string) => html`<link rel="stylesheet" href="${asset}">`)
           .join("")
       : ""
     : "";
 };
 
-const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string) => {
-  return assets[entrypoint] ? (
-    assets[entrypoint].js && typeof assets[entrypoint].js === "object" ? (
-      assets[entrypoint].js.map((asset: string) => (
-        <script
-          src={asset}
-          key={`asset-scripts-${asset}`}
-          type={process.env.NODE_ENV !== "production" ? "module" : undefined}
-        ></script>
-      ))
-    ) : (
-      <></>
-    )
-  ) : (
-    <></>
-  );
+const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, extra = "") => {
+  return assets[entrypoint]
+    ? assets[entrypoint].js && typeof assets[entrypoint].js === "object"
+      ? assets[entrypoint].js.map(
+          (asset: string) =>
+            html`<script src=${asset} ${
+              process.env.NODE_ENV !== "production" ? 'type="module"' : ""
+            } ${extra}></script>`,
+        )
+      : ""
+    : "";
 };
 
 const renderApp = (req: express.Request, res: express.Response) => {
@@ -68,9 +63,8 @@ const renderApp = (req: express.Request, res: express.Response) => {
   const { pipe, abort } = renderToPipeableStream(
     <div id="root">
       <StaticRouter location={req.url}>
-        <Dak2 />
+        <App />
       </StaticRouter>
-      {jsScriptTagsFromAssets(assets, "client")}
     </div>,
     {
       onShellError(x: unknown) {
@@ -79,11 +73,16 @@ const renderApp = (req: express.Request, res: express.Response) => {
       },
       onShellReady() {
         res.statusCode = didError ? 500 : 200;
-        if (didError && error) {
-          return res.status(500).send(error);
-        } else {
-          res.setHeader("Content-type", "text/html; charset=UTF-8");
-          res.write(html`<!DOCTYPE html>
+        if (didError) {
+          console.error(error);
+          return res.send(
+            process.env.NODE_ENV === "production"
+              ? "Internal server error."
+              : `An error occurred: ${error}`,
+          );
+        }
+        res.setHeader("Content-type", "text/html; charset=UTF-8");
+        res.write(html`<!DOCTYPE html>
             <html lang="en">
               <head>
                 <meta charset="utf-8" />
@@ -97,9 +96,10 @@ const renderApp = (req: express.Request, res: express.Response) => {
                 ${cssLinksFromAssets(assets, "client")}
               </head>
               <body>`);
-          pipe(res);
-          res.write(html`</body></html>`);
-        }
+        pipe(res);
+        res.write(
+          html`${jsScriptTagsFromAssets(assets, "client", "defer crossorigin")}</body></html>`,
+        );
       },
     },
   );
@@ -107,11 +107,18 @@ const renderApp = (req: express.Request, res: express.Response) => {
 };
 
 function handleErrors(fn: (req: express.Request, res: express.Response) => void) {
-  return async function (req: express.Request, res: express.Response, next: express.NextFunction) {
+  return async function (req: express.Request, res: express.Response) {
     try {
       return fn(req, res);
-    } catch (x) {
-      next(x);
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .send(
+          process.env.NODE_ENV === "production"
+            ? "Internal server error."
+            : `An error occurred: ${error}`,
+        );
     }
   };
 }
@@ -120,22 +127,13 @@ const app = express();
 
 app.use(compression());
 
-if (process.env.NODE_ENV !== "production") {
-  app.use(express.static("dist"));
-}
-
 app.use(express.static(process.env.PUBLIC_DIR ?? "public"));
 
 app.get("/api", (_req, res) => {
   res.status(404).json({ message: "hehe", err: true });
 });
 
-app.get(
-  "*",
-  handleErrors(function (req, res) {
-    renderApp(req, res);
-  }),
-);
+app.get("*", handleErrors(renderApp));
 
 const port = process.env.PORT || 3000;
 

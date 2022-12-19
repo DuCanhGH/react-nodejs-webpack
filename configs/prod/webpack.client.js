@@ -20,7 +20,6 @@ const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 /** @type {import("webpack").Configuration} */
 const prodClientConfig = {
-  mode: "production",
   output: {
     publicPath: clientPublicPath,
     path: path.resolve(prodDir.build, "public"),

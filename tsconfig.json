@@ -16,7 +16,9 @@
     "noEmit": true,
     "noImplicitAny": true,
     "jsx": "react-jsx",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["react/experimental"],
+    "typeRoots": ["patch_react_useeffectevent.d.ts"]
   },
   "include": ["declarations.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

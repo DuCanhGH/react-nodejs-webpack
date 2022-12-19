@@ -23,6 +23,13 @@ const serverConfig = async (_, argv) => {
     module: {
       rules: [
         {
+          test: /\.(js|jsx|ts|tsx)$/,
+          include: srcDir,
+          use: {
+            loader: "swc-loader",
+          },
+        },
+        {
           test: /\.module\.(css|scss|sass)$/i,
           use: [
             {

@@ -1,16 +1,15 @@
 // @ts-check
 import "dotenv/config";
 
+import ReactRefreshPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 
-import { devDir, prodDir, srcDir } from "../shared/constants.js";
+import { clientPublicPath, devDir, prodDir, srcDir } from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 import common from "./webpack.shared.js";
-
-const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
 /** @type {import("../shared/types").WebpackConfigFunction} */
 const commonClientConfig = (_, argv) => {
@@ -23,6 +22,23 @@ const commonClientConfig = (_, argv) => {
     name: "client",
     module: {
       rules: [
+        {
+          test: /\.(js|jsx|ts|tsx)$/,
+          include: srcDir,
+          use: {
+            loader: "swc-loader",
+            options: {
+              jsc: {
+                transform: {
+                  react: {
+                    development: !isProd,
+                    refresh: !isProd,
+                  },
+                },
+              },
+            },
+          },
+        },
         {
           test: /\.module\.(css|scss|sass)$/i,
           use: [
@@ -56,12 +72,15 @@ const commonClientConfig = (_, argv) => {
     entry: {
       client: path.resolve(srcDir, "client"),
     },
+    // @ts-expect-error boolean stuff
     plugins: [
+      ...[!isProd ? new ReactRefreshPlugin() : false],
       new WebpackManifestPlugin({
         fileName: isProd ? prodDir.appAssetsManifest : devDir.appAssetsManifest,
         writeToFileEmit: true,
         generate: (seed, files) => {
           const entrypoints = new Set();
+          /** @type {Set<typeof files[number]>} */
           const noChunkFiles = new Set();
           files.forEach((file) => {
             if (file.isChunk) {
@@ -74,6 +93,7 @@ const commonClientConfig = (_, argv) => {
             }
           });
           const entries = [...entrypoints];
+          /** @type {Record<string, Record<string, string[]>>} */
           const entryArrayManifest = entries.reduce((acc, entry) => {
             const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
             /** @type {any[]} */
@@ -116,6 +136,9 @@ const commonClientConfig = (_, argv) => {
             .map((file) => !file.path.includes("/.") && file.path)
             .filter(Boolean)
             .reduce((types, file) => {
+              if (!file) {
+                return types;
+              }
               const fileType = file.slice(file.lastIndexOf(".") + 1);
               types[fileType] = types[fileType] || [];
               types[fileType].push(file);
@@ -124,7 +147,7 @@ const commonClientConfig = (_, argv) => {
           return entryArrayManifest;
         },
       }),
-    ],
+    ].filter(Boolean),
   };
 };
 

@@ -22,4 +22,18 @@ const devDir = {
 
 const prodAssetModuleFilename = "static/media/[name].[hash][ext]";
 
-export { devDir, prodAssetModuleFilename, prodDir, rootDir, srcDir };
+const WEBPACK_DEV_SERVER_PORT = +(process.env.WPDS_PORT ?? 9000);
+
+const clientPublicPath = `${
+  process.env.NODE_ENV !== "production" ? `http://localhost:${WEBPACK_DEV_SERVER_PORT}` : ""
+}${process.env.CLIENT_PUBLIC_PATH ?? "/"}`;
+
+export {
+  clientPublicPath,
+  devDir,
+  prodAssetModuleFilename,
+  prodDir,
+  rootDir,
+  srcDir,
+  WEBPACK_DEV_SERVER_PORT,
+};
