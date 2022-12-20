@@ -1,12 +1,12 @@
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import App from "./App";
+import { routes } from "./routes";
 
 const container = document.getElementById("root"); //HTML template must have an element that uses this id `root`.
-
 const isDev = process.env.NODE_ENV !== "production";
+const router = createBrowserRouter(routes);
 
 if (!container) throw new Error("Failed to find the root element");
 
@@ -26,8 +26,6 @@ if (!isDev && "serviceWorker" in navigator) {
 hydrateRoot(
   container,
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <RouterProvider router={router} fallbackElement={null} />
   </StrictMode>,
 );

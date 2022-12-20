@@ -1,14 +1,19 @@
 import "dotenv/config";
 
+import { installGlobals } from "@remix-run/node";
+import { unstable_createStaticHandler as createStaticHandler } from "@remix-run/router";
 import { html } from "common-tags";
 import compression from "compression";
 import express from "express";
 import fs from "fs-extra";
 import { createServer } from "http";
 import { renderToPipeableStream } from "react-dom/server";
-import { StaticRouter } from "react-router-dom/server";
+import {
+  unstable_createStaticRouter as createStaticRouter,
+  unstable_StaticRouterProvider as StaticRouterProvider,
+} from "react-router-dom/server";
 
-import App from "./App";
+import { routes } from "./routes";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -32,6 +37,7 @@ const syncLoadAssets = async () => {
   }
 };
 
+installGlobals();
 syncLoadAssets();
 
 const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
@@ -57,14 +63,19 @@ const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, extr
     : "";
 };
 
-const renderApp = (req: express.Request, res: express.Response) => {
+const renderApp = async (req: express.Request, res: express.Response) => {
   let didError: boolean;
   let error: unknown;
+  const { query } = createStaticHandler(routes);
+  const remixRequest = createFetchRequest(req);
+  const context = await query(remixRequest);
+  if (context instanceof Response) {
+    throw context;
+  }
+  const router = createStaticRouter(routes, context);
   const { pipe, abort } = renderToPipeableStream(
     <div id="root">
-      <StaticRouter location={req.url}>
-        <App />
-      </StaticRouter>
+      <StaticRouterProvider router={router} context={context} />
     </div>,
     {
       onShellError(x: unknown) {
@@ -106,23 +117,6 @@ const renderApp = (req: express.Request, res: express.Response) => {
   setTimeout(abort, 60000);
 };
 
-function handleErrors(fn: (req: express.Request, res: express.Response) => void) {
-  return async function (req: express.Request, res: express.Response) {
-    try {
-      return fn(req, res);
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .send(
-          process.env.NODE_ENV === "production"
-            ? "Internal server error."
-            : `An error occurred: ${error}`,
-        );
-    }
-  };
-}
-
 const app = express();
 
 app.use(compression());
@@ -142,3 +136,60 @@ const httpServer = createServer(app);
 httpServer.listen(port, () => {
   console.log(`🚀 Server started on port ${port}`);
 });
+
+function handleErrors<T>(fn: (req: express.Request, res: express.Response) => T | Promise<T>) {
+  return async function (req: express.Request, res: express.Response) {
+    try {
+      return await fn(req, res);
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .send(
+          process.env.NODE_ENV === "production"
+            ? "Internal server error."
+            : `An error occurred: ${error}`,
+        );
+    }
+  };
+}
+
+function createFetchHeaders(requestHeaders: express.Request["headers"]): Headers {
+  const headers = new Headers();
+
+  for (const [key, values] of Object.entries(requestHeaders)) {
+    if (values) {
+      if (Array.isArray(values)) {
+        for (const value of values) {
+          headers.append(key, value);
+        }
+      } else {
+        headers.set(key, values);
+      }
+    }
+  }
+
+  return headers;
+}
+
+function createFetchRequest(req: express.Request): Request {
+  const origin = `${req.protocol}://${req.get("host")}`;
+  const url = new URL(req.originalUrl || req.url, origin);
+  const controller = new AbortController();
+
+  req.on("close", () => {
+    controller.abort();
+  });
+
+  const init: RequestInit = {
+    method: req.method,
+    headers: createFetchHeaders(req.headers),
+    signal: controller.signal,
+  };
+
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    init.body = req.body;
+  }
+
+  return new Request(url.href, init);
+}

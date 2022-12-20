@@ -1,4 +1,4 @@
-import "./app.css";
+import "../app.css";
 
 import {
   experimental_useEffectEvent as useEffectEvent,
@@ -7,18 +7,17 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
-import styles2 from "./adu.module.scss";
-import styles from "./app.module.sass";
-import logo from "./logo.svg";
+import styles from "../app.module.sass";
+import logo from "../logo.svg";
 //an example of how you can use css/sass/scss files.
 
 const ReactMarkdown = lazy(() => import("react-markdown"));
 
 type ColorScheme = "light" | "dark";
 
-const App = () => {
+const RootLayout = () => {
   const [theme, setTheme] = useState<ColorScheme>("light");
   const location = useLocation();
   const doSomething = useEffectEvent((url: string) => console.log(url, theme));
@@ -34,7 +33,8 @@ const App = () => {
           </Suspense>
           <img src={logo} className="App-logo" alt="logo" />
           <p className={styles.hehe}>
-            Edit <code>src/App.tsx</code> then save it to see the changes.
+            Edit <code>src/pages/layout.tsx</code> then save it to see your changes. Also edit{" "}
+            <code>src/routes.tsx</code> to add new routes!
           </p>
           <p
             className={styles.hehe}
@@ -61,14 +61,10 @@ const App = () => {
           >
             {theme.slice(0, 1).toUpperCase() + theme.slice(1)}
           </button>
-          <Routes>
-            <Route path="*" element={<p className={styles2["hehe"]}>Welcome</p>} />
-            <Route path="/home" element={<p className={styles2["hehe"]}>To</p>} />
-            <Route path="/about" element={<p className={styles2["hehe"]}>React!</p>} />
-          </Routes>
+          <Outlet />
           <div>
-            <Link to="/" className="App-link">
-              Root
+            <Link to="/random-path" className="App-link">
+              Random path
             </Link>
             <Link to="/home" className="App-link">
               Home
@@ -91,4 +87,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default RootLayout;
