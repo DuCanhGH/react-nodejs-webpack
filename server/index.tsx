@@ -13,7 +13,13 @@ import {
   unstable_StaticRouterProvider as StaticRouterProvider,
 } from "react-router-dom/server";
 
-import { routes } from "./routes";
+import { getRoutes } from "../src/routes";
+import { PagesManifest } from "../src/types";
+
+// supplied by Webpack's definePlugin
+declare const PAGES_MANIFEST: PagesManifest;
+
+const routes = await getRoutes(PAGES_MANIFEST ?? []);
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -50,15 +56,22 @@ const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
     : "";
 };
 
-const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, extra = "") => {
+const jsScriptTagsFromAssets = (
+  assets: AssetsManifest,
+  entrypoint: string,
+  extra = "",
+  key = "js",
+) => {
   return assets[entrypoint]
-    ? assets[entrypoint].js && typeof assets[entrypoint].js === "object"
-      ? assets[entrypoint].js.map(
-          (asset: string) =>
-            html`<script src=${asset} ${
-              process.env.NODE_ENV !== "production" ? 'type="module"' : ""
-            } ${extra}></script>`,
-        )
+    ? assets[entrypoint][key] && typeof assets[entrypoint][key] === "object"
+      ? assets[entrypoint][key]
+          .map(
+            (asset) =>
+              html`<script src=${asset} ${
+                process.env.NODE_ENV !== "production" ? 'type="module"' : ""
+              } ${extra}></script>`,
+          )
+          .join("")
       : ""
     : "";
 };
@@ -109,7 +122,11 @@ const renderApp = async (req: express.Request, res: express.Response) => {
               <body>`);
         pipe(res);
         res.write(
-          html`${jsScriptTagsFromAssets(assets, "client", "defer crossorigin")}</body></html>`,
+          html`${jsScriptTagsFromAssets(
+            assets,
+            "client",
+            "defer crossorigin",
+          )}${jsScriptTagsFromAssets(assets, "client", "defer crossorigin", "mjs")}</body></html>`,
         );
       },
     },

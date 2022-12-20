@@ -3,10 +3,9 @@ import "dotenv/config";
 import "webpack-dev-server";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { join } from "path";
 
 import commonClientConfig from "../common/webpack.client.js";
-import { clientPublicPath, devDir, rootDir, WEBPACK_DEV_SERVER_PORT } from "../shared/constants.js";
+import { clientPublicPath, devDir, WEBPACK_DEV_SERVER_PORT } from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 

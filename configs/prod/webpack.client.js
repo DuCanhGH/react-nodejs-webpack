@@ -5,7 +5,7 @@ import CompressionPlugin from "compression-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
+import { resolve } from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
@@ -22,7 +22,7 @@ const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 const prodClientConfig = {
   output: {
     publicPath: clientPublicPath,
-    path: path.resolve(prodDir.build, "public"),
+    path: resolve(prodDir.build, "public"),
     filename: "static/js/[name]-[contenthash:8].js",
     chunkFilename: "static/js/[name]-[contenthash:8].chunk.js",
     assetModuleFilename: prodAssetModuleFilename,
@@ -93,14 +93,14 @@ const prodClientConfig = {
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(rootDir, "public").replace(/\\/g, "/") + "/**/*",
+          from: resolve(rootDir, "public").replace(/\\/g, "/") + "/**/*",
           to: prodDir.build,
-          context: path.resolve(rootDir, "."),
+          context: resolve(rootDir, "."),
         },
       ],
     }),
     new WorkboxPlugin.InjectManifest({
-      swSrc: path.resolve(srcDir, "sw.ts"),
+      swSrc: resolve(srcDir, "sw.ts"),
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: convertBoolean(process.env.ANALYZER) ? "static" : "disabled",

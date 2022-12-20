@@ -40,6 +40,7 @@
     "@types/compression": "1.7.2",
     "@types/express": "4.17.15",
     "@types/fs-extra": "9.0.13",
+    "@types/node": "18.11.17",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.9",
     "@types/shell-quote": "1.7.1",
@@ -107,6 +108,7 @@
     "react": "0.0.0-experimental-fabef7a6b-20221215",
     "react-dom": "0.0.0-experimental-fabef7a6b-20221215",
     "react-markdown": "8.0.4",
-    "react-router-dom": "6.5.0"
+    "react-router-dom": "6.5.0",
+    "type-fest": "3.4.0"
   }
 }

@@ -3,16 +3,21 @@ import "dotenv/config";
 
 import ReactRefreshPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 
-import { clientPublicPath, devDir, prodDir, srcDir } from "../shared/constants.js";
+import {
+  clientEntrypoint,
+  clientPublicPath,
+  devDir,
+  prodDir,
+  srcDir,
+} from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 import common from "./webpack.shared.js";
 
 /** @type {import("../shared/types").WebpackConfigFunction} */
-const commonClientConfig = (_, argv) => {
+const commonClientConfig = async (_, argv) => {
   const isProd = argv.mode === "production";
   const isSourceMapEnabled = convertBoolean(
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
@@ -70,7 +75,7 @@ const commonClientConfig = (_, argv) => {
       ],
     },
     entry: {
-      client: path.resolve(srcDir, "client"),
+      client: clientEntrypoint,
     },
     // @ts-expect-error boolean stuff
     plugins: [

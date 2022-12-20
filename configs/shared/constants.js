@@ -1,15 +1,18 @@
 // @ts-check
 import fs from "fs-extra";
-import path from "path";
+import { join, normalize, relative, resolve } from "path";
+
+import { getDirectories } from "../utils/get_directories.js";
 
 const rootDir = fs.realpathSync(process.cwd());
 
-const __prod_build_dir = path.resolve(rootDir, "build");
-const __prod_app_assets_manifest = path.resolve(__prod_build_dir, "assets.json");
-const __dev_build_dir = path.resolve(rootDir, "dist");
-const __dev_app_assets_manifest = path.resolve(__dev_build_dir, "assets.json");
+const __prod_build_dir = resolve(rootDir, "build");
+const __prod_app_assets_manifest = resolve(__prod_build_dir, "assets.json");
+const __dev_build_dir = resolve(rootDir, "dist");
+const __dev_app_assets_manifest = resolve(__dev_build_dir, "assets.json");
 
-const srcDir = path.resolve(rootDir, "src");
+const srcDir = resolve(rootDir, "src");
+const srcServerDir = resolve(rootDir, "server");
 
 const prodDir = {
   build: __prod_build_dir,
@@ -28,12 +31,34 @@ const clientPublicPath = `${
   process.env.NODE_ENV !== "production" ? `http://localhost:${WEBPACK_DEV_SERVER_PORT}` : ""
 }${process.env.CLIENT_PUBLIC_PATH ?? "/"}`;
 
+const pagesDir = normalize("src/pages");
+
+/**
+ * @param {string} srcPath
+ * @returns {Promise<import("../../src/types").PagesManifest>}
+ */
+const getRoutesList = async (srcPath = pagesDir) => {
+  return {
+    path: relative(pagesDir, srcPath),
+    children: await Promise.all(
+      (await getDirectories(join(rootDir, srcPath))).map((a) => getRoutesList(join(srcPath, a))),
+    ),
+  };
+};
+
+const serverEntrypoint = resolve(srcServerDir, "index");
+const clientEntrypoint = resolve(srcDir, "client");
+
 export {
+  clientEntrypoint,
   clientPublicPath,
   devDir,
+  getRoutesList,
   prodAssetModuleFilename,
   prodDir,
   rootDir,
+  serverEntrypoint,
   srcDir,
+  srcServerDir,
   WEBPACK_DEV_SERVER_PORT,
 };

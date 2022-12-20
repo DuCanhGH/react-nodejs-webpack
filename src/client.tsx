@@ -2,11 +2,14 @@ import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import { routes } from "./routes";
+import { getRoutes } from "./routes";
+import { PagesManifest } from "./types";
+
+// supplied by Webpack's definePlugin
+declare const PAGES_MANIFEST: PagesManifest;
 
 const container = document.getElementById("root"); //HTML template must have an element that uses this id `root`.
 const isDev = process.env.NODE_ENV !== "production";
-const router = createBrowserRouter(routes);
 
 if (!container) throw new Error("Failed to find the root element");
 
@@ -23,9 +26,12 @@ if (!isDev && "serviceWorker" in navigator) {
   });
 }
 
-hydrateRoot(
-  container,
-  <StrictMode>
-    <RouterProvider router={router} fallbackElement={null} />
-  </StrictMode>,
-);
+getRoutes(PAGES_MANIFEST ?? []).then((routes) => {
+  const router = createBrowserRouter(routes);
+  hydrateRoot(
+    container,
+    <StrictMode>
+      <RouterProvider router={router} fallbackElement={null} />
+    </StrictMode>,
+  );
+});

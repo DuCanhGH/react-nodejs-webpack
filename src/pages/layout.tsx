@@ -3,11 +3,12 @@ import "../app.css";
 import {
   experimental_useEffectEvent as useEffectEvent,
   lazy,
+  ReactNode,
   Suspense,
   useEffect,
   useState,
 } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import styles from "../app.module.sass";
 import logo from "../logo.svg";
@@ -17,7 +18,7 @@ const ReactMarkdown = lazy(() => import("react-markdown"));
 
 type ColorScheme = "light" | "dark";
 
-const RootLayout = () => {
+const RootLayout = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<ColorScheme>("light");
   const location = useLocation();
   const doSomething = useEffectEvent((url: string) => console.log(url, theme));
@@ -34,7 +35,7 @@ const RootLayout = () => {
           <img src={logo} className="App-logo" alt="logo" />
           <p className={styles.hehe}>
             Edit <code>src/pages/layout.tsx</code> then save it to see your changes. Also edit{" "}
-            <code>src/routes.tsx</code> to add new routes!
+            <code>src/pages</code> to add new routes!
           </p>
           <p
             className={styles.hehe}
@@ -61,10 +62,10 @@ const RootLayout = () => {
           >
             {theme.slice(0, 1).toUpperCase() + theme.slice(1)}
           </button>
-          <Outlet />
+          {children}
           <div>
-            <Link to="/random-path" className="App-link">
-              Random path
+            <Link to="/" className="App-link">
+              Root
             </Link>
             <Link to="/home" className="App-link">
               Home

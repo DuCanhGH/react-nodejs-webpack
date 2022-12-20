@@ -2,10 +2,17 @@
 import "dotenv/config";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import path from "path";
+import { resolve } from "path";
 import webpack from "webpack";
 
-import { devDir, prodDir, rootDir, srcDir } from "../shared/constants.js";
+import {
+  devDir,
+  prodDir,
+  rootDir,
+  serverEntrypoint,
+  srcDir,
+  srcServerDir,
+} from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
 import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
 import common from "./webpack.shared.js";
@@ -24,7 +31,7 @@ const serverConfig = async (_, argv) => {
       rules: [
         {
           test: /\.(js|jsx|ts|tsx)$/,
-          include: srcDir,
+          include: [srcDir, srcServerDir],
           use: {
             loader: "swc-loader",
           },
@@ -78,7 +85,7 @@ const serverConfig = async (_, argv) => {
       ],
     },
     entry: {
-      server: path.join(srcDir, "server"),
+      server: serverEntrypoint,
     },
     externals: {
       express: "express",
@@ -90,12 +97,13 @@ const serverConfig = async (_, argv) => {
       new webpack.DefinePlugin({
         "process.env.ASSETS_MANIFEST": JSON.stringify(assetsManifest),
         "process.env.PUBLIC_DIR": JSON.stringify(
-          path.resolve(rootDir, isProd ? "build/public" : "public"),
+          resolve(rootDir, isProd ? "build/public" : "public"),
         ),
       }),
     ],
     experiments: {
       outputModule: true,
+      topLevelAwait: true,
     },
   };
 };
