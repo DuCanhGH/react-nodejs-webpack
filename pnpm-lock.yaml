@@ -86,11 +86,11 @@ dependencies:
   dotenv: 16.0.3
   express: 4.18.2
   fs-extra: 11.1.0
+  husky: 8.0.2
   react: 0.0.0-experimental-fabef7a6b-20221215
   react-dom: 0.0.0-experimental-fabef7a6b-20221215_gqbq4it25i4budkb2qaespknoq
   react-markdown: 8.0.4_3sgh43to3tq3yast4rhe5dnnbu
   react-router-dom: 6.5.0_aygrr7ryrxif7z5enyjdgnz3oa
-  type-fest: 3.4.0
 
 devDependencies:
   '@babel/core': 7.20.5
@@ -122,7 +122,6 @@ devDependencies:
   eslint-config-react-app: 7.0.1_4jtpmqisusg7n5da3sdfx7mwve
   eslint-plugin-simple-import-sort: 8.0.0_eslint@8.30.0
   file-loader: 6.2.0_webpack@5.75.0
-  husky: 8.0.2
   lint-staged: 13.1.0
   mini-css-extract-plugin: 2.7.2_webpack@5.75.0
   node-sass: 8.0.0
@@ -141,6 +140,7 @@ devDependencies:
   swc-loader: 0.2.3_zqhpc3y2oecp2qxc3hqu7q4zbq
   terser: 5.16.1
   terser-webpack-plugin: 5.3.6_zqhpc3y2oecp2qxc3hqu7q4zbq
+  type-fest: 3.4.0
   typescript: 4.9.4
   webpack: 5.75.0_p2lqcohyciscw2tn454tsfvqbq
   webpack-bundle-analyzer: 4.7.0
@@ -5055,7 +5055,7 @@ packages:
     resolution: {integrity: sha512-Tkv80jtvbnkK3mYWxPZePGFpQ/tT3HNSs/sasF9P2YfkMezDl3ON37YN6jUUI4eTg5LcyVynlb6r4eyvOmspvg==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
+    dev: false
 
   /iconv-lite/0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -8399,6 +8399,7 @@ packages:
   /type-fest/3.4.0:
     resolution: {integrity: sha512-PEPg6RHlB9cFwoTMNENNrQFL0cXX04voWr2UPwQBJ3pVs7Mt8Y1oLWdUeMdGEwZE8HFFlujq8gS9enmyiQ8pLg==}
     engines: {node: '>=14.16'}
+    dev: true
 
   /type-is/1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
