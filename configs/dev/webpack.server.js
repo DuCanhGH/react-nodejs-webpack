@@ -1,7 +1,6 @@
 // @ts-check
 import "dotenv/config";
 
-import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 import commonServerConfig from "../common/webpack.server.js";

@@ -7,6 +7,7 @@ import express from "express";
 import fs from "fs-extra";
 import { createServer } from "http";
 import { renderToPipeableStream } from "react-dom/server";
+import type { RouteObject } from "react-router-dom";
 import {
   unstable_createStaticRouter as createStaticRouter,
   unstable_StaticRouterProvider as StaticRouterProvider,
@@ -15,20 +16,18 @@ import {
 import { getRoutes } from "../src/routes";
 import type { AssetsManifest, PagesManifest } from "../src/types";
 import ServerHTML from "./serverHtml";
-
-// supplied by Webpack's definePlugin
-declare const PAGES_MANIFEST: PagesManifest;
-
-const routes = await getRoutes(PAGES_MANIFEST ?? []);
+import { createFetchRequest, getRoutesList, handleErrors } from "./utils";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+let pagesManifest: PagesManifest;
 let assets: AssetsManifest;
+let routes: RouteObject[];
 
-const syncLoadAssets = async () => {
+const loadAssetsAndRoutes = async () => {
   if (!process.env.ASSETS_MANIFEST) {
     throw new Error(
-      "Environment variable ASSETS_MANIFEST not specified. There may have been a bug in your config.",
+      "Environment variable ASSETS_MANIFEST not found. There may be a bug in your config.",
     );
   }
   while (!assets) {
@@ -39,10 +38,12 @@ const syncLoadAssets = async () => {
     }
     assets = await fs.readJSON(process.env.ASSETS_MANIFEST);
   }
+  pagesManifest = await getRoutesList();
+  routes = await getRoutes(pagesManifest);
 };
 
 installGlobals();
-syncLoadAssets();
+loadAssetsAndRoutes();
 
 const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key = "js") => {
   return assets[entrypoint]
@@ -61,7 +62,7 @@ const renderApp = async (req: express.Request, res: express.Response) => {
   }
   const router = createStaticRouter(routes, context);
   const { pipe, abort } = renderToPipeableStream(
-    <ServerHTML assets={assets}>
+    <ServerHTML assets={assets} pagesManifest={JSON.stringify(pagesManifest)}>
       <StaticRouterProvider router={router} context={context} />
     </ServerHTML>,
     {
@@ -106,60 +107,3 @@ const httpServer = createServer(app);
 httpServer.listen(port, () => {
   console.log(`🚀 Server started on port ${port}`);
 });
-
-function handleErrors<T>(fn: (req: express.Request, res: express.Response) => T | Promise<T>) {
-  return async function (req: express.Request, res: express.Response) {
-    try {
-      return await fn(req, res);
-    } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .send(
-          process.env.NODE_ENV === "production"
-            ? "Internal server error."
-            : `An error occurred: ${error}`,
-        );
-    }
-  };
-}
-
-function createFetchHeaders(requestHeaders: express.Request["headers"]): Headers {
-  const headers = new Headers();
-
-  for (const [key, values] of Object.entries(requestHeaders)) {
-    if (values) {
-      if (Array.isArray(values)) {
-        for (const value of values) {
-          headers.append(key, value);
-        }
-      } else {
-        headers.set(key, values);
-      }
-    }
-  }
-
-  return headers;
-}
-
-function createFetchRequest(req: express.Request): Request {
-  const origin = `${req.protocol}://${req.get("host")}`;
-  const url = new URL(req.originalUrl || req.url, origin);
-  const controller = new AbortController();
-
-  req.on("close", () => {
-    controller.abort();
-  });
-
-  const init: RequestInit = {
-    method: req.method,
-    headers: createFetchHeaders(req.headers),
-    signal: controller.signal,
-  };
-
-  if (req.method !== "GET" && req.method !== "HEAD") {
-    init.body = req.body;
-  }
-
-  return new Request(url.href, init);
-}

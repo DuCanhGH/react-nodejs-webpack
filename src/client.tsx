@@ -3,10 +3,14 @@ import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { getRoutes } from "./routes";
-import { PagesManifest } from "./types";
+import { PAGES_MANIFEST_SCRIPT_ID } from "./shared/constants";
+import type { PagesManifest } from "./types";
 
-// supplied by Webpack's definePlugin
-declare const PAGES_MANIFEST: PagesManifest;
+declare global {
+  interface Window {
+    PAGES_MANIFEST: PagesManifest;
+  }
+}
 
 const container = document.getElementById("root"); //HTML template must have an element that uses this id `root`.
 const isDev = process.env.NODE_ENV !== "production";
@@ -26,7 +30,8 @@ if (!isDev && "serviceWorker" in navigator) {
   });
 }
 
-getRoutes(PAGES_MANIFEST ?? []).then((routes) => {
+getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
+  document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
   const router = createBrowserRouter(routes);
   hydrateRoot(
     container,

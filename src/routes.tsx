@@ -24,8 +24,11 @@ const mapROKeyToFilename: MapRouteObjectToFile = {
   },
 };
 
+const convertFilenameToRRPath = (filename: string) =>
+  filename.replace(/\[\.{3}.+\]/, "*").replace(/\[(.+)\]/, ":$1");
+
 const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
-  const route = `/${path.path.replaceAll(/\\/g, "/")}`;
+  const route = `/${path.path}`;
   const isRootRoute = route === "/";
   const importPath = `./pages${route}${!isRootRoute ? "/" : ""}`;
   const lastSegmentOfRoute = route.slice(route.lastIndexOf("/") + 1);
@@ -37,7 +40,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
     }
   }
   const newRouteEntry: RouteObject = {
-    path: lastSegmentOfRoute,
+    path: convertFilenameToRRPath(lastSegmentOfRoute),
     element: isRootRoute ? (
       <RootLayout>
         <Outlet />
@@ -50,12 +53,15 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
               .catch(() => ({
                 default: ({ children }: { children: ReactNode }) => <>{children}</>,
               }))
-              .then((Component) => ({
-                default: () => (
-                  <Component.default>
-                    <Outlet />
-                  </Component.default>
-                ),
+              .then((mod) => ({
+                default: () => {
+                  const Layout = mod.default;
+                  return (
+                    <Layout>
+                      <Outlet />
+                    </Layout>
+                  );
+                },
               })),
           ),
         )}

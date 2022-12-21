@@ -22,8 +22,6 @@ const commonClientConfig = async (_, argv) => {
   const isSourceMapEnabled = convertBoolean(
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
-  /** @type {string | undefined} */
-  let cssLinks;
   return {
     target: "web",
     name: "client",

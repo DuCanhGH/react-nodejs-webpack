@@ -1,8 +1,6 @@
 // @ts-check
 import fs from "fs-extra";
-import { join, normalize, relative, resolve } from "path";
-
-import { getDirectories } from "../utils/get_directories.js";
+import { resolve } from "path";
 
 const rootDir = fs.realpathSync(process.cwd());
 
@@ -31,21 +29,6 @@ const clientPublicPath = `${
   process.env.NODE_ENV !== "production" ? `http://localhost:${WEBPACK_DEV_SERVER_PORT}` : ""
 }${process.env.CLIENT_PUBLIC_PATH ?? "/"}`;
 
-const pagesDir = normalize("src/pages");
-
-/**
- * @param {string} srcPath
- * @returns {Promise<import("../../src/types").PagesManifest>}
- */
-const getRoutesList = async (srcPath = pagesDir) => {
-  return {
-    path: relative(pagesDir, srcPath),
-    children: await Promise.all(
-      (await getDirectories(join(rootDir, srcPath))).map((a) => getRoutesList(join(srcPath, a))),
-    ),
-  };
-};
-
 const serverEntrypoint = resolve(srcServerDir, "index");
 const clientEntrypoint = resolve(srcDir, "client");
 
@@ -53,7 +36,6 @@ export {
   clientEntrypoint,
   clientPublicPath,
   devDir,
-  getRoutesList,
   prodAssetModuleFilename,
   prodDir,
   rootDir,

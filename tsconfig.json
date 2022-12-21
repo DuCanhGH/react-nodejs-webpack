@@ -16,7 +16,6 @@
     "noEmit": true,
     "noImplicitAny": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
     "types": ["react/experimental"],
     "typeRoots": ["patch_react_useeffectevent.d.ts"]
   },

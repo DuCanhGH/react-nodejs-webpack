@@ -1,5 +1,6 @@
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
-import { clientsClaim, HandlerCallbackOptions } from "workbox-core";
+import type { HandlerCallbackOptions } from "workbox-core";
+import { clientsClaim } from "workbox-core";
 import { ExpirationPlugin } from "workbox-expiration";
 import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
 import { NavigationRoute, registerRoute } from "workbox-routing";
