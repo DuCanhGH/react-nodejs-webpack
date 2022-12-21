@@ -2,7 +2,6 @@ import "dotenv/config";
 
 import { installGlobals } from "@remix-run/node";
 import { unstable_createStaticHandler as createStaticHandler } from "@remix-run/router";
-import { html } from "common-tags";
 import compression from "compression";
 import express from "express";
 import fs from "fs-extra";
@@ -14,7 +13,8 @@ import {
 } from "react-router-dom/server";
 
 import { getRoutes } from "../src/routes";
-import { PagesManifest } from "../src/types";
+import type { AssetsManifest, PagesManifest } from "../src/types";
+import ServerHTML from "./serverHtml";
 
 // supplied by Webpack's definePlugin
 declare const PAGES_MANIFEST: PagesManifest;
@@ -22,8 +22,6 @@ declare const PAGES_MANIFEST: PagesManifest;
 const routes = await getRoutes(PAGES_MANIFEST ?? []);
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-type AssetsManifest = Record<string, Record<string, string[]>>;
 
 let assets: AssetsManifest;
 
@@ -46,39 +44,15 @@ const syncLoadAssets = async () => {
 installGlobals();
 syncLoadAssets();
 
-const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
-  return assets[entrypoint]
-    ? assets[entrypoint].css && typeof assets[entrypoint].css === "object"
-      ? assets[entrypoint].css
-          .map((asset: string) => html`<link rel="stylesheet" href="${asset}">`)
-          .join("")
-      : ""
-    : "";
-};
-
-const jsScriptTagsFromAssets = (
-  assets: AssetsManifest,
-  entrypoint: string,
-  extra = "",
-  key = "js",
-) => {
+const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key = "js") => {
   return assets[entrypoint]
     ? assets[entrypoint][key] && typeof assets[entrypoint][key] === "object"
-      ? assets[entrypoint][key]
-          .map(
-            (asset) =>
-              html`<script src=${asset} ${
-                process.env.NODE_ENV !== "production" ? 'type="module"' : ""
-              } ${extra}></script>`,
-          )
-          .join("")
-      : ""
-    : "";
+      ? assets[entrypoint][key].filter((a) => !a.endsWith(`.hot-update.${key}`))
+      : []
+    : [];
 };
 
 const renderApp = async (req: express.Request, res: express.Response) => {
-  let didError: boolean;
-  let error: unknown;
   const { query } = createStaticHandler(routes);
   const remixRequest = createFetchRequest(req);
   const context = await query(remixRequest);
@@ -87,51 +61,30 @@ const renderApp = async (req: express.Request, res: express.Response) => {
   }
   const router = createStaticRouter(routes, context);
   const { pipe, abort } = renderToPipeableStream(
-    <div id="root">
+    <ServerHTML assets={assets}>
       <StaticRouterProvider router={router} context={context} />
-    </div>,
+    </ServerHTML>,
     {
-      onShellError(x: unknown) {
-        didError = true;
-        error = x;
+      bootstrapScripts: jsScriptTagsFromAssets(assets, "client"),
+      bootstrapModules: jsScriptTagsFromAssets(assets, "client", "mjs"),
+      onError(error) {
+        console.error(error);
+      },
+      onShellError() {
+        res.statusCode = 500;
+        res.setHeader("content-type", "text/html; charset=UTF-8");
+        res.send("<h1>Something went wrong</h1>");
       },
       onShellReady() {
-        res.statusCode = didError ? 500 : 200;
-        if (didError) {
-          console.error(error);
-          return res.send(
-            process.env.NODE_ENV === "production"
-              ? "Internal server error."
-              : `An error occurred: ${error}`,
-          );
-        }
-        res.setHeader("Content-type", "text/html; charset=UTF-8");
-        res.write(html`<!DOCTYPE html>
-            <html lang="en">
-              <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="theme-color" content="#000000" />
-                <meta name="description" content="A template. A React app." />
-                <link rel="icon" href="/favicon.ico" />
-                <link rel="apple-touch-icon" href="/logo192.png" />
-                <link rel="manifest" href="/manifest.json" />
-                <title>React App</title>
-                ${cssLinksFromAssets(assets, "client")}
-              </head>
-              <body>`);
+        res.statusCode = 200;
+        res.setHeader("content-type", "text/html; charset=UTF-8");
         pipe(res);
-        res.write(
-          html`${jsScriptTagsFromAssets(
-            assets,
-            "client",
-            "defer crossorigin",
-          )}${jsScriptTagsFromAssets(assets, "client", "defer crossorigin", "mjs")}</body></html>`,
-        );
       },
     },
   );
-  setTimeout(abort, 60000);
+  setTimeout(() => {
+    abort();
+  }, 10000);
 };
 
 const app = express();

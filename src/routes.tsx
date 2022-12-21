@@ -1,9 +1,11 @@
-import { createElement, lazy,ReactNode, Suspense } from "react";
-import { Outlet, RouteObject } from "react-router-dom";
+import type { ReactNode } from "react";
+import { createElement, lazy, Suspense } from "react";
+import type { RouteObject } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import type { Entries, StringKeyOf } from "type-fest";
 
 import RootLayout from "./pages/layout";
-import { PagesManifest } from "./types";
+import type { PagesManifest } from "./types";
 
 type MapRouteObjectToFile = Partial<
   Record<
@@ -24,7 +26,9 @@ const mapROKeyToFilename: MapRouteObjectToFile = {
 
 const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
   const route = `/${path.path.replaceAll(/\\/g, "/")}`;
-  const importPath = `./pages${route}${route !== "/" ? "/" : ""}`;
+  const isRootRoute = route === "/";
+  const importPath = `./pages${route}${!isRootRoute ? "/" : ""}`;
+  const lastSegmentOfRoute = route.slice(route.lastIndexOf("/") + 1);
   let routeChildren: RouteObject[] | undefined;
   if (path.children.length > 0) {
     routeChildren = [];
@@ -32,10 +36,13 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
       routeChildren = routeChildren.concat(await getRoutes(i));
     }
   }
-  const lastSegmentOfRoute = route.slice(route.lastIndexOf("/") + 1);
   const newRouteEntry: RouteObject = {
     path: lastSegmentOfRoute,
-    element: (
+    element: isRootRoute ? (
+      <RootLayout>
+        <Outlet />
+      </RootLayout>
+    ) : (
       <Suspense>
         {createElement(
           lazy(() =>

@@ -1,9 +1,9 @@
 import "../app.css";
 
+import type { ReactNode } from "react";
 import {
   experimental_useEffectEvent as useEffectEvent,
   lazy,
-  ReactNode,
   Suspense,
   useEffect,
   useState,
@@ -26,65 +26,63 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
     doSomething(location.pathname);
   }, [location]);
   return (
-    <>
-      <div className="App">
-        <header className="App-header">
-          <Suspense fallback={<p className={styles.hehe}>Loading...</p>}>
-            <ReactMarkdown children="*hehe*" />
-          </Suspense>
-          <img src={logo} className="App-logo" alt="logo" />
-          <p className={styles.hehe}>
-            Edit <code>src/pages/layout.tsx</code> then save it to see your changes. Also edit{" "}
-            <code>src/pages</code> to add new routes!
-          </p>
-          <p
-            className={styles.hehe}
-            style={{
-              borderRadius: "6px",
-              padding: "12px",
-              ...(theme === "light"
-                ? {
-                    color: "black",
-                    backgroundColor: "white",
-                  }
-                : {
-                    color: "white",
-                  }),
-            }}
+    <div className="App">
+      <header className="App-header">
+        <Suspense fallback={<p className={styles.hehe}>Loading...</p>}>
+          <ReactMarkdown children="*hehe*" />
+        </Suspense>
+        <img src={logo} className="App-logo" alt="logo" />
+        <p className={styles.hehe}>
+          Edit <code>src/layout.tsx</code> then save it to see your changes. Also edit{" "}
+          <code>src/pages</code> to add new routes!
+        </p>
+        <p
+          className={styles.hehe}
+          style={{
+            borderRadius: "6px",
+            padding: "12px",
+            ...(theme === "light"
+              ? {
+                  color: "black",
+                  backgroundColor: "white",
+                }
+              : {
+                  color: "white",
+                }),
+          }}
+        >
+          Click this button, then the links below and check your console:
+        </p>
+        <button
+          onClick={() => {
+            setTheme((_old) => (_old === "dark" ? "light" : "dark"));
+          }}
+          className="App-button"
+        >
+          {theme.slice(0, 1).toUpperCase() + theme.slice(1)}
+        </button>
+        {children}
+        <div>
+          <Link to="/" className="App-link">
+            Root
+          </Link>
+          <Link to="/home" className="App-link">
+            Home
+          </Link>
+          <Link to="/about" className="App-link">
+            About
+          </Link>
+          <a
+            className="App-link"
+            href="https://beta.reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Click this button, then the links below and check your console:
-          </p>
-          <button
-            onClick={() => {
-              setTheme((_old) => (_old === "dark" ? "light" : "dark"));
-            }}
-            className="App-button"
-          >
-            {theme.slice(0, 1).toUpperCase() + theme.slice(1)}
-          </button>
-          {children}
-          <div>
-            <Link to="/" className="App-link">
-              Root
-            </Link>
-            <Link to="/home" className="App-link">
-              Home
-            </Link>
-            <Link to="/about" className="App-link">
-              About
-            </Link>
-            <a
-              className="App-link"
-              href="https://beta.reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn React here!
-            </a>
-          </div>
-        </header>
-      </div>
-    </>
+            Learn React here!
+          </a>
+        </div>
+      </header>
+    </div>
   );
 };
 

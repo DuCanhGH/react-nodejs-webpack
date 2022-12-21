@@ -17,11 +17,11 @@ const config = {
       .map((filename) => `"${isWin ? filename : escapeStr([filename])}"`)
       .join(" ");
     return [
-      `pnpm format ${escapedFileNames}`,
       `pnpm lint --fix ${filenames
         .filter(async (file) => !(await eslint.isPathIgnored(file)))
         .map((f) => `"${f}"`)
         .join(" ")}`,
+      `pnpm format ${escapedFileNames}`,
       `git add ${escapedFileNames}`,
     ];
   },
