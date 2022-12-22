@@ -1,57 +1,24 @@
 import "dotenv/config";
 
 import { installGlobals } from "@remix-run/node";
-import { unstable_createStaticHandler as createStaticHandler } from "@remix-run/router";
+import { createStaticHandler } from "@remix-run/router";
 import compression from "compression";
 import express from "express";
-import fs from "fs-extra";
 import { createServer } from "http";
 import { renderToPipeableStream } from "react-dom/server";
-import type { RouteObject } from "react-router-dom";
-import {
-  unstable_createStaticRouter as createStaticRouter,
-  unstable_StaticRouterProvider as StaticRouterProvider,
-} from "react-router-dom/server";
+import { createStaticRouter, StaticRouterProvider } from "react-router-dom/server";
 
-import { getRoutes } from "../src/routes";
-import type { AssetsManifest, PagesManifest } from "../src/types";
 import ServerHTML from "./serverHtml";
-import { createFetchRequest, getRoutesList, handleErrors } from "./utils";
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-let pagesManifest: PagesManifest;
-let assets: AssetsManifest;
-let routes: RouteObject[];
-
-const loadAssetsAndRoutes = async () => {
-  if (!process.env.ASSETS_MANIFEST) {
-    throw new Error(
-      "Environment variable ASSETS_MANIFEST not found. There may be a bug in your config.",
-    );
-  }
-  while (!assets) {
-    if (!(await fs.pathExists(process.env.ASSETS_MANIFEST))) {
-      console.warn("Haven't found assets.json yet, waiting...");
-      await delay(5000);
-      continue;
-    }
-    assets = await fs.readJSON(process.env.ASSETS_MANIFEST);
-  }
-  pagesManifest = await getRoutesList();
-  routes = await getRoutes(pagesManifest);
-};
+import {
+  createFetchRequest,
+  handleErrors,
+  jsScriptTagsFromAssets,
+  loadAssetsAndRoutes,
+} from "./utils";
 
 installGlobals();
-loadAssetsAndRoutes();
 
-const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key = "js") => {
-  return assets[entrypoint]
-    ? assets[entrypoint][key] && typeof assets[entrypoint][key] === "object"
-      ? assets[entrypoint][key].filter((a) => !a.endsWith(`.hot-update.${key}`))
-      : []
-    : [];
-};
+const { assets, pagesManifest, routes } = await loadAssetsAndRoutes();
 
 const renderApp = async (req: express.Request, res: express.Response) => {
   const { query } = createStaticHandler(routes);

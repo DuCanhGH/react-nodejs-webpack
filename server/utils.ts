@@ -1,12 +1,16 @@
 import type express from "express";
 import fs, { type PathLike } from "fs-extra";
 import { join, normalize, relative, sep } from "path";
+import type { RouteObject } from "react-router-dom";
 
-import type { PagesManifest } from "../src/types";
+import { getRoutes } from "../src/routes";
+import type { AssetsManifest, PagesManifest } from "../src/types";
 
 const rootDir = fs.realpathSync(process.cwd());
 
 const pagesDir = normalize("src/pages");
+
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 const getDirectories = async (source: PathLike) =>
   (await fs.readdir(source, { withFileTypes: true }))
@@ -81,11 +85,46 @@ const createFetchRequest = (req: express.Request): Request => {
   return new Request(url.href, init);
 };
 
+const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key = "js") => {
+  return assets[entrypoint]
+    ? assets[entrypoint][key] && typeof assets[entrypoint][key] === "object"
+      ? assets[entrypoint][key].filter((a) => !a.endsWith(`.hot-update.${key}`))
+      : []
+    : [];
+};
+
+const loadAssetsAndRoutes = async () => {
+  let assets: AssetsManifest | undefined;
+  const pagesManifest = await getRoutesList();
+  const routes = await getRoutes(pagesManifest);
+  if (!process.env.ASSETS_MANIFEST) {
+    throw new Error(
+      "Environment variable ASSETS_MANIFEST not found. There may be a bug in your config.",
+    );
+  }
+  while (!assets) {
+    if (!(await fs.pathExists(process.env.ASSETS_MANIFEST))) {
+      console.warn("Haven't found assets.json yet, waiting...");
+      await delay(5000);
+      continue;
+    }
+    assets = await fs.readJSON(process.env.ASSETS_MANIFEST);
+  }
+  return {
+    assets,
+    pagesManifest,
+    routes,
+  };
+};
+
 export {
   convertToForwardSlash,
   createFetchHeaders,
   createFetchRequest,
+  delay,
   getDirectories,
   getRoutesList,
   handleErrors,
+  jsScriptTagsFromAssets,
+  loadAssetsAndRoutes,
 };

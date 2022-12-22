@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { createElement, lazy, Suspense } from "react";
+import { createElement, lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import type { Entries, StringKeyOf } from "type-fest";
 
+import { Wrapper } from "./components/Wrapper";
 import RootLayout from "./pages/layout";
 import type { PagesManifest } from "./types";
 
@@ -30,7 +31,10 @@ const convertFilenameToRRPath = (filename: string) =>
 const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
   const route = `/${path.path}`;
   const isRootRoute = route === "/";
-  const importPath = `./pages${route}${!isRootRoute ? "/" : ""}`;
+  let importPath = `./pages${route}`;
+  if (!importPath.endsWith("/")) {
+    importPath += "/";
+  }
   const lastSegmentOfRoute = route.slice(route.lastIndexOf("/") + 1);
   let routeChildren: RouteObject[] | undefined;
   if (path.children.length > 0) {
@@ -46,7 +50,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
         <Outlet />
       </RootLayout>
     ) : (
-      <Suspense>
+      <>
         {createElement(
           lazy(() =>
             import(`${importPath}layout`)
@@ -65,13 +69,30 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
               })),
           ),
         )}
-      </Suspense>
+      </>
     ),
     children: [
       ...(routeChildren ?? []),
       {
         index: true,
-        element: <Suspense>{createElement(lazy(() => import(`${importPath}page`)))}</Suspense>,
+        element: (
+          <>
+            {createElement(
+              lazy(() =>
+                import(`${importPath}page`).then((mod) => ({
+                  default: () => {
+                    const Page = mod.default;
+                    return (
+                      <Wrapper>
+                        <Page />
+                      </Wrapper>
+                    );
+                  },
+                })),
+              ),
+            )}
+          </>
+        ),
         loader: (
           await import(`${importPath}loader`).catch(() => ({
             default: undefined,
@@ -88,7 +109,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
     }
     if (file.shouldBeReactElement) {
       newRouteEntry[key] = (
-        <Suspense>
+        <>
           {createElement(
             lazy(() =>
               import(`${importPath}${file.filename}`).catch(() => ({
@@ -96,7 +117,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
               })),
             ),
           )}
-        </Suspense>
+        </>
       );
       continue;
     }

@@ -1,3 +1,4 @@
+import "nprogress/nprogress.css";
 import "../app.css";
 
 import type { ReactNode } from "react";
@@ -8,9 +9,10 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import styles from "../app.module.sass";
+import Link from "../components/Link";
 import logo from "../logo.svg";
 //an example of how you can use css/sass/scss files.
 
@@ -22,9 +24,11 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<ColorScheme>("light");
   const location = useLocation();
   const doSomething = useEffectEvent((url: string) => console.log(url, theme));
+
   useEffect(() => {
     doSomething(location.pathname);
   }, [location]);
+
   return (
     <div className="App">
       <header className="App-header">
