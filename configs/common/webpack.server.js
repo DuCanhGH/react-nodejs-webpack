@@ -1,6 +1,7 @@
 // @ts-check
 import "dotenv/config";
 
+import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import { resolve } from "path";
 import webpack from "webpack";
@@ -24,6 +25,7 @@ const serverConfig = async (_, argv) => {
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
   const assetsManifest = isProd ? prodDir.appAssetsManifest : devDir.appAssetsManifest;
+  const swcRc = await fs.readJSON(resolve(rootDir, ".swcrc"), "utf-8");
   return {
     target: "node16.17",
     name: "server",
@@ -34,6 +36,7 @@ const serverConfig = async (_, argv) => {
           include: [srcDir, srcServerDir],
           use: {
             loader: "swc-loader",
+            options: swcRc,
           },
         },
         {

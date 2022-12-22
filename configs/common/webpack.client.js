@@ -2,7 +2,9 @@
 import "dotenv/config";
 
 import ReactRefreshPlugin from "@pmmmwh/react-refresh-webpack-plugin";
+import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { resolve } from "path";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 
 import {
@@ -10,6 +12,7 @@ import {
   clientPublicPath,
   devDir,
   prodDir,
+  rootDir,
   srcDir,
 } from "../shared/constants.js";
 import convertBoolean from "../utils/bool_conv.js";
@@ -22,6 +25,7 @@ const commonClientConfig = async (_, argv) => {
   const isSourceMapEnabled = convertBoolean(
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
+  const swcRc = await fs.readJSON(resolve(rootDir, ".swcrc"), "utf-8");
   return {
     target: "web",
     name: "client",
@@ -33,7 +37,9 @@ const commonClientConfig = async (_, argv) => {
           use: {
             loader: "swc-loader",
             options: {
+              ...swcRc,
               jsc: {
+                ...swcRc.jsc,
                 transform: {
                   react: {
                     development: !isProd,
