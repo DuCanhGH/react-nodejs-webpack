@@ -20,14 +20,16 @@ installGlobals();
 
 const { assets, pagesManifest, routes } = await loadAssetsAndRoutes();
 
+const routesAsObject = [routes];
+
 const renderApp = async (req: express.Request, res: express.Response) => {
-  const { query } = createStaticHandler(routes);
+  const { query } = createStaticHandler(routesAsObject);
   const remixRequest = createFetchRequest(req);
   const context = await query(remixRequest);
   if (context instanceof Response) {
     throw context;
   }
-  const router = createStaticRouter(routes, context);
+  const router = createStaticRouter(routesAsObject, context);
   const { pipe, abort } = renderToPipeableStream(
     <ServerHTML assets={assets} pagesManifest={JSON.stringify(pagesManifest)}>
       <StaticRouterProvider router={router} context={context} />

@@ -28,7 +28,7 @@ const mapROKeyToFilename: MapRouteObjectToFile = {
 const convertFilenameToRRPath = (filename: string) =>
   filename.replace(/\[\.{3}.+\]/, "*").replace(/\[(.+)\]/, ":$1");
 
-const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
+const getRoutes = async (path: PagesManifest): Promise<RouteObject> => {
   const route = `/${path.path}`;
   const isRootRoute = route === "/";
   let importPath = `./pages${route}`;
@@ -40,7 +40,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
   if (path.children.length > 0) {
     routeChildren = [];
     for (const i of path.children) {
-      routeChildren = routeChildren.concat(await getRoutes(i));
+      routeChildren.push(await getRoutes(i));
     }
   }
   const newRouteEntry: RouteObject = {
@@ -130,7 +130,7 @@ const getRoutes = async (path: PagesManifest): Promise<RouteObject[]> => {
   (Object.keys(newRouteEntry) as StringKeyOf<typeof newRouteEntry>[]).forEach(
     (key) => newRouteEntry[key] === undefined && delete newRouteEntry[key],
   );
-  return [newRouteEntry];
+  return newRouteEntry;
 };
 
 export { getRoutes };

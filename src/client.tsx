@@ -32,7 +32,7 @@ if (!isDev && "serviceWorker" in navigator) {
 
 getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
   document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
-  const router = createBrowserRouter(routes);
+  const router = createBrowserRouter([routes]);
   hydrateRoot(
     container,
     <StrictMode>
