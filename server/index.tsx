@@ -18,7 +18,7 @@ import {
 
 installGlobals();
 
-const { assets, pagesManifest, routes } = await loadAssetsAndRoutes();
+const { assets, routesList, routes } = await loadAssetsAndRoutes();
 
 const resolvedRoutes = [routes];
 
@@ -31,7 +31,7 @@ const renderApp = async (req: express.Request, res: express.Response) => {
   }
   const router = createStaticRouter(resolvedRoutes, context);
   const { pipe, abort } = renderToPipeableStream(
-    <ServerHTML assets={assets} pagesManifest={JSON.stringify(pagesManifest)}>
+    <ServerHTML assets={assets} pagesManifest={JSON.stringify(routesList)}>
       <StaticRouterProvider router={router} context={context} />
     </ServerHTML>,
     {

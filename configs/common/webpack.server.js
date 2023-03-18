@@ -6,10 +6,14 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
 import webpack from "webpack";
 
+import { RoutesListPlugin } from "../plugins/routes-list-plugin.js";
 import {
   devAppAssetsManifest,
+  devBuildDir,
   prodAppPathsManifest,
+  prodBuildDir,
   rootDir,
+  ROUTES_LIST_FILE,
   serverEntrypoint,
   srcDir,
   srcServerDir,
@@ -112,7 +116,11 @@ const serverConfig = async (_, argv) => {
         "process.env.PUBLIC_DIR": JSON.stringify(
           path.resolve(rootDir, isProd ? "build/public" : "public"),
         ),
+        "process.env.ROUTES_LIST": JSON.stringify(
+          path.resolve(isProd ? prodBuildDir : devBuildDir, ROUTES_LIST_FILE),
+        ),
       }),
+      new RoutesListPlugin({ isProd }),
     ],
     experiments: {
       outputModule: true,

@@ -1,4 +1,4 @@
-import type { FILE_TYPES } from "./constants";
+import type { FILE_TYPES } from "../../configs/shared/constants";
 
 export interface PagesManifest {
   path: string;

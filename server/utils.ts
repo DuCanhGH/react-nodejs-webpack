@@ -1,9 +1,7 @@
 import type express from "express";
-import fs, { type PathLike } from "fs-extra";
-import path from "path";
+import fs from "fs-extra";
 
 import { getRoutes } from "../src/routes";
-import { FILE_TYPES, JS_EXTS } from "../src/shared/constants";
 import type { AssetsManifest, PagesManifest } from "../src/shared/types";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -73,59 +71,25 @@ const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key 
     : [];
 };
 
-const rootDir = fs.realpathSync(process.cwd());
-
-const srcDir = path.join(rootDir, "src");
-
-const pagesDir = path.join(srcDir, "pages");
-
-const getDirectories = async (source: PathLike) =>
-  (await fs.readdir(source, { withFileTypes: true }))
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
-
-const convertToForwardSlash = (filepath: string) => filepath.replace(/\\/g, "/");
-
-const ensureLeadingSlash = (filepath: string) =>
-  filepath.startsWith("/") ? filepath : `/${filepath}`;
-
-const ensureTrailingSlash = (filepath: string) =>
-  filepath.endsWith("/") ? filepath : `${filepath}/`;
-
-const convertFileToReactRouterPath = (filename: string) =>
-  filename.replace(/\[\.{3}.+\]/, "*").replace(/\[(.+)\]/, ":$1");
-
-const getRoutesList = async (routePath = pagesDir): Promise<PagesManifest> => {
-  const pathDir = path.relative(pagesDir, routePath);
-  const isRoot = !pathDir.length;
-  const resolvedPath = ensureLeadingSlash(convertToForwardSlash(pathDir));
-  const lastRouteSegment = isRoot ? "/" : resolvedPath.slice(resolvedPath.lastIndexOf("/") + 1);
-
-  const baseImportPaths = `./pages${ensureTrailingSlash(resolvedPath)}`;
-  const importPaths: PagesManifest["importPaths"] = {};
-
-  for (const fileType of FILE_TYPES) {
-    for (const extension of JS_EXTS) {
-      if (fs.existsSync(path.join(srcDir, baseImportPaths, `${fileType}${extension}`))) {
-        importPaths[fileType] = `${baseImportPaths}${fileType}`;
-      }
-    }
-  }
-
-  return {
-    path: convertFileToReactRouterPath(lastRouteSegment),
-    // this should be relative to src/routes.js
-    importPaths,
-    children: await Promise.all(
-      (await getDirectories(routePath)).map((a) => getRoutesList(path.join(routePath, a))),
-    ),
-  };
-};
-
 const loadAssetsAndRoutes = async () => {
   let assets: AssetsManifest | undefined;
-  const pagesManifest = await getRoutesList();
-  const routes = await getRoutes(pagesManifest);
+  let routesList: PagesManifest | undefined;
+
+  if (!process.env.ROUTES_LIST) {
+    throw new Error(
+      "Environment variable ROUTES_LIST not found. There may be a bug in your config.",
+    );
+  }
+  while (!routesList) {
+    if (!(await fs.pathExists(process.env.ROUTES_LIST))) {
+      console.warn("Haven't found routes-list.json yet, waiting...");
+      await delay(5000);
+      continue;
+    }
+    routesList = await fs.readJSON(process.env.ROUTES_LIST);
+  }
+
+  const routes = await getRoutes(routesList);
   if (!process.env.ASSETS_MANIFEST) {
     throw new Error(
       "Environment variable ASSETS_MANIFEST not found. There may be a bug in your config.",
@@ -141,17 +105,15 @@ const loadAssetsAndRoutes = async () => {
   }
   return {
     assets,
-    pagesManifest,
+    routesList,
     routes,
   };
 };
 
 export {
-  convertToForwardSlash,
   createFetchHeaders,
   createFetchRequest,
   delay,
-  getRoutesList,
   handleErrors,
   jsScriptTagsFromAssets,
   loadAssetsAndRoutes,
