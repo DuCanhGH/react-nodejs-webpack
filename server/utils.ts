@@ -1,32 +1,11 @@
 import type express from "express";
 import fs, { type PathLike } from "fs-extra";
-import { join, normalize, relative, sep } from "path";
-import type { RouteObject } from "react-router-dom";
+import path from "path";
 
 import { getRoutes } from "../src/routes";
 import type { AssetsManifest, PagesManifest } from "../src/types";
 
-const rootDir = fs.realpathSync(process.cwd());
-
-const pagesDir = normalize("src/pages");
-
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-const getDirectories = async (source: PathLike) =>
-  (await fs.readdir(source, { withFileTypes: true }))
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
-
-const convertToForwardSlash = (filepath: string) => filepath.split(sep).join("/");
-
-const getRoutesList = async (srcPath = pagesDir): Promise<PagesManifest> => {
-  return {
-    path: convertToForwardSlash(relative(pagesDir, srcPath)),
-    children: await Promise.all(
-      (await getDirectories(join(rootDir, srcPath))).map((a) => getRoutesList(join(srcPath, a))),
-    ),
-  };
-};
 
 const handleErrors = <T>(fn: (req: express.Request, res: express.Response) => T | Promise<T>) => {
   return async function (req: express.Request, res: express.Response) {
@@ -93,6 +72,42 @@ const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key 
     : [];
 };
 
+const rootDir = fs.realpathSync(process.cwd());
+
+const pagesDir = path.join(rootDir, "src/pages");
+
+const getDirectories = async (source: PathLike) =>
+  (await fs.readdir(source, { withFileTypes: true }))
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
+
+const convertToForwardSlash = (filepath: string) => filepath.replace(/\\/g, "/");
+
+const ensureLeadingSlash = (filepath: string) =>
+  filepath.startsWith("/") ? filepath : `/${filepath}`;
+
+const ensureTrailingSlash = (filepath: string) =>
+  filepath.endsWith("/") ? filepath : `${filepath}/`;
+
+const convertFileToReactRouterPath = (filename: string) =>
+  filename.replace(/\[\.{3}.+\]/, "*").replace(/\[(.+)\]/, ":$1");
+
+const getRoutesList = async (routePath = pagesDir): Promise<PagesManifest> => {
+  const pathDir = path.relative(pagesDir, routePath);
+  const isRoot = !pathDir.length;
+  const resolvedPath = ensureLeadingSlash(convertToForwardSlash(pathDir));
+  const lastRouteSegment = isRoot ? "/" : resolvedPath.slice(resolvedPath.lastIndexOf("/") + 1);
+
+  return {
+    path: convertFileToReactRouterPath(lastRouteSegment),
+    // this should be relative to src/routes.js
+    importPath: `./pages${ensureTrailingSlash(resolvedPath)}`,
+    children: await Promise.all(
+      (await getDirectories(routePath)).map((a) => getRoutesList(path.join(routePath, a))),
+    ),
+  };
+};
+
 const loadAssetsAndRoutes = async () => {
   let assets: AssetsManifest | undefined;
   const pagesManifest = await getRoutesList();
@@ -122,7 +137,6 @@ export {
   createFetchHeaders,
   createFetchRequest,
   delay,
-  getDirectories,
   getRoutesList,
   handleErrors,
   jsScriptTagsFromAssets,

@@ -5,7 +5,7 @@ import { createStaticHandler } from "@remix-run/router";
 import compression from "compression";
 import express from "express";
 import { createServer } from "http";
-import { renderToPipeableStream } from "react-dom/server";
+import { renderToPipeableStream, renderToStaticMarkup } from "react-dom/server";
 import { createStaticRouter, StaticRouterProvider } from "react-router-dom/server";
 
 import ServerHTML from "./serverHtml";
@@ -20,16 +20,16 @@ installGlobals();
 
 const { assets, pagesManifest, routes } = await loadAssetsAndRoutes();
 
-const routesAsObject = [routes];
+const resolvedRoutes = [routes];
 
 const renderApp = async (req: express.Request, res: express.Response) => {
-  const { query } = createStaticHandler(routesAsObject);
+  const { query } = createStaticHandler(resolvedRoutes);
   const remixRequest = createFetchRequest(req);
   const context = await query(remixRequest);
   if (context instanceof Response) {
     throw context;
   }
-  const router = createStaticRouter(routesAsObject, context);
+  const router = createStaticRouter(resolvedRoutes, context);
   const { pipe, abort } = renderToPipeableStream(
     <ServerHTML assets={assets} pagesManifest={JSON.stringify(pagesManifest)}>
       <StaticRouterProvider router={router} context={context} />
@@ -43,7 +43,7 @@ const renderApp = async (req: express.Request, res: express.Response) => {
       onShellError() {
         res.statusCode = 500;
         res.setHeader("content-type", "text/html; charset=UTF-8");
-        res.send("<h1>Something went wrong</h1>");
+        res.send(renderToStaticMarkup(<h1>Something went wrong</h1>));
       },
       onShellReady() {
         res.statusCode = 200;

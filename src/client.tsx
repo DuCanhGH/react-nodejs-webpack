@@ -30,13 +30,15 @@ if (!isDev && "serviceWorker" in navigator) {
   });
 }
 
-getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
-  document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
-  const router = createBrowserRouter([routes]);
-  hydrateRoot(
-    container,
-    <StrictMode>
-      <RouterProvider router={router} fallbackElement={null} />
-    </StrictMode>,
-  );
-});
+const routes = await getRoutes(window.PAGES_MANIFEST ?? []);
+
+document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
+
+const router = createBrowserRouter([routes]);
+
+hydrateRoot(
+  container,
+  <StrictMode>
+    <RouterProvider router={router} fallbackElement={null} />
+  </StrictMode>,
+);

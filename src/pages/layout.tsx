@@ -1,4 +1,3 @@
-import "nprogress/nprogress.css";
 import "../app.css";
 
 import type { ReactNode } from "react";
@@ -9,10 +8,9 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import styles from "../app.module.sass";
-import Link from "../components/Link";
 import logo from "../logo.svg";
 //an example of how you can use css/sass/scss files.
 

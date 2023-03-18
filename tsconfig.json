@@ -16,9 +16,14 @@
     "noEmit": true,
     "noImplicitAny": true,
     "jsx": "react-jsx",
-    "types": ["react/experimental"],
-    "typeRoots": ["patch_react_useeffectevent.d.ts"]
+    "types": ["react/experimental"]
   },
-  "include": ["declarations.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "patch_react_useeffectevent.d.ts",
+    "declarations.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "configs/*/webpack.*.js"
+  ],
   "exclude": ["node_modules"]
 }

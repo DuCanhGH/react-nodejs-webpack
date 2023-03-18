@@ -87,11 +87,11 @@ const commonClientConfig = async (_, argv) => {
     plugins: [
       ...[!isProd ? new ReactRefreshPlugin() : false],
       new WebpackManifestPlugin({
-        fileName: isProd ? prodDir.appAssetsManifest : devDir.appAssetsManifest,
+        fileName: (isProd ? prodDir : devDir).appAssetsManifest,
         writeToFileEmit: true,
         generate: (seed, files) => {
           const entrypoints = new Set();
-          /** @type {Set<typeof files[number]>} */
+          /** @type {Set<(typeof files)[number]>} */
           const noChunkFiles = new Set();
           files.forEach((file) => {
             if (file.isChunk) {
@@ -107,11 +107,11 @@ const commonClientConfig = async (_, argv) => {
           /** @type {Record<string, Record<string, string[]>>} */
           const entryArrayManifest = entries.reduce((acc, entry) => {
             const name = (entry.options || {}).name || (entry.runtimeChunk || {}).name || entry.id;
-            /** @type {any[]} */
+            /** @type {string[]} */
             const allFiles = []
               .concat(
                 ...(entry.chunks || []).map(
-                  /** @param {any} chunk */
+                  /** @param {import("webpack").Chunk} chunk */
                   (chunk) => {
                     /** @type {string[]} */
                     const returnArr = [];
@@ -125,15 +125,20 @@ const commonClientConfig = async (_, argv) => {
               )
               .filter(Boolean);
 
-            const filesByType = allFiles.reduce((types, file) => {
-              const fileType = file.slice(file.lastIndexOf(".") + 1);
-              types[fileType] = types[fileType] || [];
-              types[fileType].push(file);
-              return types;
-            }, {});
-            /** @type {any} */
+            const filesByType = allFiles.reduce(
+              (/** @type {Record<string, string[]>} */ types, file) => {
+                const fileType = file.slice(file.lastIndexOf(".") + 1);
+                types[fileType] = types[fileType] || [];
+                types[fileType].push(file);
+                return types;
+              },
+              {},
+            );
+            /** @type {(string | number)[]} */
             const chunkIds = [].concat(
-              ...(entry.chunks || []).map(/** @param {any} chunk */ (chunk) => chunk.ids),
+              ...(entry.chunks || []).map(
+                /** @param {import("webpack").Chunk} chunk */ (chunk) => chunk.ids,
+              ),
             );
 
             return name
@@ -146,7 +151,7 @@ const commonClientConfig = async (_, argv) => {
           entryArrayManifest["noentry"] = [...noChunkFiles]
             .map((file) => !file.path.includes("/.") && file.path)
             .filter(Boolean)
-            .reduce((types, file) => {
+            .reduce((/** @type {Record<string, string[]>} */ types, file) => {
               if (!file) {
                 return types;
               }
@@ -159,6 +164,9 @@ const commonClientConfig = async (_, argv) => {
         },
       }),
     ].filter(Boolean),
+    experiments: {
+      topLevelAwait: true,
+    },
   };
 };
 

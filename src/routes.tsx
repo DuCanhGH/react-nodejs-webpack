@@ -1,136 +1,68 @@
-import type { ReactNode } from "react";
-import { createElement, lazy } from "react";
+import type { LazyExoticComponent, ReactNode } from "react";
+import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Outlet } from "react-router-dom";
-import type { Entries, StringKeyOf } from "type-fest";
 
-import { Wrapper } from "./components/Wrapper";
 import RootLayout from "./pages/layout";
 import type { PagesManifest } from "./types";
 
-type MapRouteObjectToFile = Partial<
-  Record<
-    keyof RouteObject,
-    {
-      filename: string;
-      shouldBeReactElement?: boolean;
-    }
-  >
->;
+const getRoutes = async (pageManifest: PagesManifest): Promise<RouteObject> => {
+  const { path, importPath, children } = pageManifest;
 
-const mapROKeyToFilename: MapRouteObjectToFile = {
-  errorElement: {
-    filename: "error",
-    shouldBeReactElement: true,
-  },
-};
+  const Layout =
+    path === "/"
+      ? RootLayout
+      : lazy(() =>
+          import(`${importPath}layout`).catch(() => ({
+            default: ({ children }: { children: ReactNode }) => <>{children}</>,
+          })),
+        );
 
-const convertFilenameToRRPath = (filename: string) =>
-  filename.replace(/\[\.{3}.+\]/, "*").replace(/\[(.+)\]/, ":$1");
+  let Page: LazyExoticComponent<any> | undefined;
+  let ErrorBoundary: LazyExoticComponent<any> | undefined;
 
-const getRoutes = async (path: PagesManifest): Promise<RouteObject> => {
-  const route = `/${path.path}`;
-  const isRootRoute = route === "/";
-  let importPath = `./pages${route}`;
-  if (!importPath.endsWith("/")) {
-    importPath += "/";
+  try {
+    Page = lazy(() => import(`${importPath}page`));
+  } catch {
+    // Do nothing, page.js might not be defined.
   }
-  const lastSegmentOfRoute = route.slice(route.lastIndexOf("/") + 1);
-  let routeChildren: RouteObject[] | undefined;
-  if (path.children.length > 0) {
-    routeChildren = [];
-    for (const i of path.children) {
-      routeChildren.push(await getRoutes(i));
-    }
+
+  try {
+    ErrorBoundary = lazy(() => import(`${importPath}error`));
+  } catch {
+    // Do nothing, error.js might not be defined.
   }
-  const newRouteEntry: RouteObject = {
-    path: convertFilenameToRRPath(lastSegmentOfRoute),
-    element: isRootRoute ? (
-      <RootLayout>
-        <Outlet />
-      </RootLayout>
-    ) : (
-      <>
-        {createElement(
-          lazy(() =>
-            import(`${importPath}layout`)
-              .catch(() => ({
-                default: ({ children }: { children: ReactNode }) => <>{children}</>,
-              }))
-              .then((mod) => ({
-                default: () => {
-                  const Layout = mod.default;
-                  return (
-                    <Layout>
-                      <Outlet />
-                    </Layout>
-                  );
-                },
-              })),
-          ),
-        )}
-      </>
-    ),
-    children: [
-      ...(routeChildren ?? []),
-      {
-        index: true,
-        element: (
-          <>
-            {createElement(
-              lazy(() =>
-                import(`${importPath}page`).then((mod) => ({
-                  default: () => {
-                    const Page = mod.default;
-                    return (
-                      <Wrapper>
-                        <Page />
-                      </Wrapper>
-                    );
-                  },
-                })),
-              ),
-            )}
-          </>
-        ),
-        loader: (
-          await import(`${importPath}loader`).catch(() => ({
-            default: undefined,
-          }))
-        ).default,
-      },
-    ],
-  };
-  for (const [key, file] of Object.entries(mapROKeyToFilename) as Entries<
-    typeof mapROKeyToFilename
-  >) {
-    if (!file) {
-      continue;
-    }
-    if (file.shouldBeReactElement) {
-      newRouteEntry[key] = (
-        <>
-          {createElement(
-            lazy(() =>
-              import(`${importPath}${file.filename}`).catch(() => ({
-                default: <></>,
-              })),
-            ),
-          )}
-        </>
-      );
-      continue;
-    }
-    newRouteEntry[key] = (
-      await import(`${importPath}${file.filename}`).catch(() => ({
+
+  const resolvedChildren: RouteObject[] = [];
+
+  for (const child of children) {
+    resolvedChildren.push(await getRoutes(child));
+  }
+
+  if (Page) {
+    const loader = (
+      await import(`${importPath}loader`).catch(() => ({
         default: undefined,
       }))
     ).default;
+
+    resolvedChildren.push({
+      index: true,
+      element: <Page />,
+      loader,
+    });
   }
-  (Object.keys(newRouteEntry) as StringKeyOf<typeof newRouteEntry>[]).forEach(
-    (key) => newRouteEntry[key] === undefined && delete newRouteEntry[key],
-  );
-  return newRouteEntry;
+
+  return {
+    path,
+    element: (
+      <Layout>
+        <Outlet />
+      </Layout>
+    ),
+    errorElement: ErrorBoundary ? <ErrorBoundary /> : undefined,
+    children: resolvedChildren,
+  };
 };
 
 export { getRoutes };

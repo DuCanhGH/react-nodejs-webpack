@@ -1,5 +1,6 @@
 export interface PagesManifest {
   path: string;
+  importPath: string;
   children: PagesManifest[];
 }
 

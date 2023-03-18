@@ -3,7 +3,7 @@ import "dotenv/config";
 
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { resolve } from "path";
+import path from "path";
 import webpack from "webpack";
 
 import {
@@ -25,7 +25,7 @@ const serverConfig = async (_, argv) => {
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
   const assetsManifest = isProd ? prodDir.appAssetsManifest : devDir.appAssetsManifest;
-  const swcRc = await fs.readJSON(resolve(rootDir, ".swcrc"), "utf-8");
+  const swcRc = await fs.readJSON(path.resolve(rootDir, ".swcrc"), "utf-8");
   return {
     target: "node16.17",
     name: "server",
@@ -100,7 +100,7 @@ const serverConfig = async (_, argv) => {
       new webpack.DefinePlugin({
         "process.env.ASSETS_MANIFEST": JSON.stringify(assetsManifest),
         "process.env.PUBLIC_DIR": JSON.stringify(
-          resolve(rootDir, isProd ? "build/public" : "public"),
+          path.resolve(rootDir, isProd ? "build/public" : "public"),
         ),
       }),
     ],
