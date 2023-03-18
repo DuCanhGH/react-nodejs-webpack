@@ -1,37 +1,33 @@
-import type { LazyExoticComponent, ReactNode } from "react";
-import { lazy } from "react";
+import type { ReactNode } from "react";
+import { lazy, Suspense } from "react";
 import type { RouteObject } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
 import RootLayout from "./pages/layout";
-import type { PagesManifest } from "./types";
+import type { PagesManifest } from "./shared/types";
+
+const lazyLoadReactComponent = <T extends (...props: any) => JSX.Element>(
+  path: string | undefined,
+  fallback?: T,
+) => {
+  if (!path) {
+    return fallback;
+  }
+  return lazy(() => import(`${path}`));
+};
 
 const getRoutes = async (pageManifest: PagesManifest): Promise<RouteObject> => {
-  const { path, importPath, children } = pageManifest;
+  const { path, importPaths, children } = pageManifest;
 
   const Layout =
     path === "/"
       ? RootLayout
-      : lazy(() =>
-          import(`${importPath}layout`).catch(() => ({
-            default: ({ children }: { children: ReactNode }) => <>{children}</>,
-          })),
-        );
+      : lazyLoadReactComponent(importPaths.layout, ({ children }: { children: ReactNode }) => (
+          <>{children}</>
+        ));
 
-  let Page: LazyExoticComponent<any> | undefined;
-  let ErrorBoundary: LazyExoticComponent<any> | undefined;
-
-  try {
-    Page = lazy(() => import(`${importPath}page`));
-  } catch {
-    // Do nothing, page.js might not be defined.
-  }
-
-  try {
-    ErrorBoundary = lazy(() => import(`${importPath}error`));
-  } catch {
-    // Do nothing, error.js might not be defined.
-  }
+  const Page = lazyLoadReactComponent(importPaths.page);
+  const ErrorBoundary = lazyLoadReactComponent(importPaths.error);
 
   const resolvedChildren: RouteObject[] = [];
 
@@ -40,26 +36,30 @@ const getRoutes = async (pageManifest: PagesManifest): Promise<RouteObject> => {
   }
 
   if (Page) {
-    const loader = (
-      await import(`${importPath}loader`).catch(() => ({
-        default: undefined,
-      }))
-    ).default;
+    const loaderPath = importPaths.loader;
+    const loader = loaderPath ? (await import(`${loaderPath}`)).default : undefined;
+    const Loading = lazyLoadReactComponent(importPaths.loading);
 
     resolvedChildren.push({
       index: true,
-      element: <Page />,
+      element: Loading ? (
+        <Suspense fallback={<Loading />}>
+          <Page />
+        </Suspense>
+      ) : (
+        <Page />
+      ),
       loader,
     });
   }
 
   return {
     path,
-    element: (
+    element: Layout ? (
       <Layout>
         <Outlet />
       </Layout>
-    ),
+    ) : undefined,
     errorElement: ErrorBoundary ? <ErrorBoundary /> : undefined,
     children: resolvedChildren,
   };

@@ -7,15 +7,17 @@ import path from "path";
 import webpack from "webpack";
 
 import {
-  devDir,
-  prodDir,
+  devAppAssetsManifest,
+  prodAppPathsManifest,
   rootDir,
   serverEntrypoint,
   srcDir,
   srcServerDir,
 } from "../shared/constants.js";
-import convertBoolean from "../utils/bool_conv.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import addPathAliasesToSWC from "../utils/add-path-aliases-to-swc.js";
+import convertBoolean from "../utils/bool-conv.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
+import readTSConfig from "../utils/read-tsconfig.js";
 import common from "./webpack.shared.js";
 
 /** @type {import("../shared/types").WebpackConfigFunction} */
@@ -24,8 +26,16 @@ const serverConfig = async (_, argv) => {
   const isSourceMapEnabled = convertBoolean(
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
-  const assetsManifest = isProd ? prodDir.appAssetsManifest : devDir.appAssetsManifest;
+  const assetsManifest = isProd ? prodAppPathsManifest : devAppAssetsManifest;
+  const tsconfig = readTSConfig();
   const swcRc = await fs.readJSON(path.resolve(rootDir, ".swcrc"), "utf-8");
+  if (tsconfig && tsconfig.options && tsconfig.options.paths) {
+    addPathAliasesToSWC(
+      swcRc,
+      path.join(rootDir, tsconfig.options.baseUrl ?? "."),
+      tsconfig.options.paths,
+    );
+  }
   return {
     target: "node16.17",
     name: "server",

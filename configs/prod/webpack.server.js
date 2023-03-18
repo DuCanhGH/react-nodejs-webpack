@@ -2,14 +2,14 @@
 import "dotenv/config";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { resolve } from "path";
+import path from "path";
 import webpack from "webpack";
 
 import commonServerConfig from "../common/webpack.server.js";
-import { prodAssetModuleFilename, prodDir } from "../shared/constants.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import { prodAssetModuleFilename, prodBuildDir } from "../shared/constants.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
 
-const outputDir = resolve(prodDir.build, "public");
+const outputDir = path.resolve(prodBuildDir, "public");
 
 /** @type {import("webpack").Configuration} */
 const prodServerConfig = {

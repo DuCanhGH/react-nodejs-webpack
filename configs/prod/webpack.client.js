@@ -5,16 +5,16 @@ import CompressionPlugin from "compression-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { resolve } from "path";
+import path from "path";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
 import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import WorkboxPlugin from "workbox-webpack-plugin";
 
 import commonClientConfig from "../common/webpack.client.js";
-import { prodAssetModuleFilename, prodDir, rootDir, srcDir } from "../shared/constants.js";
-import convertBoolean from "../utils/bool_conv.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import { prodAssetModuleFilename, prodBuildDir, rootDir, srcDir } from "../shared/constants.js";
+import convertBoolean from "../utils/bool-conv.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
 
 const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 
@@ -22,7 +22,7 @@ const clientPublicPath = process.env.CLIENT_PUBLIC_PATH || "/";
 const prodClientConfig = {
   output: {
     publicPath: clientPublicPath,
-    path: resolve(prodDir.build, "public"),
+    path: path.resolve(prodBuildDir, "public"),
     filename: "static/js/[name]-[contenthash:8].js",
     chunkFilename: "static/js/[name]-[contenthash:8].chunk.js",
     assetModuleFilename: prodAssetModuleFilename,
@@ -93,14 +93,14 @@ const prodClientConfig = {
     new CopyPlugin({
       patterns: [
         {
-          from: resolve(rootDir, "public").replace(/\\/g, "/") + "/**/*",
-          to: prodDir.build,
-          context: resolve(rootDir, "."),
+          from: path.resolve(rootDir, "public").replace(/\\/g, "/") + "/**/*",
+          to: prodBuildDir,
+          context: path.resolve(rootDir, "."),
         },
       ],
     }),
     new WorkboxPlugin.InjectManifest({
-      swSrc: resolve(srcDir, "sw.ts"),
+      swSrc: path.resolve(srcDir, "sw.ts"),
     }),
     new BundleAnalyzerPlugin({
       analyzerMode: convertBoolean(process.env.ANALYZER) ? "static" : "disabled",

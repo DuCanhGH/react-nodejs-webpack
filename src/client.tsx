@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { getRoutes } from "./routes";
 import { PAGES_MANIFEST_SCRIPT_ID } from "./shared/constants";
-import type { PagesManifest } from "./types";
+import type { PagesManifest } from "./shared/types";
 
 declare global {
   interface Window {
@@ -30,15 +30,15 @@ if (!isDev && "serviceWorker" in navigator) {
   });
 }
 
-const routes = await getRoutes(window.PAGES_MANIFEST ?? []);
+getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
+  document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
 
-document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
+  const router = createBrowserRouter([routes]);
 
-const router = createBrowserRouter([routes]);
-
-hydrateRoot(
-  container,
-  <StrictMode>
-    <RouterProvider router={router} fallbackElement={null} />
-  </StrictMode>,
-);
+  hydrateRoot(
+    container,
+    <StrictMode>
+      <RouterProvider router={router} fallbackElement={null} />
+    </StrictMode>,
+  );
+});

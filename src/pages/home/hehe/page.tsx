@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router-dom";
 
-import styles2 from "../../../adu.module.scss";
+import styles2 from "@/adu.module.scss";
 
 export default function Page() {
   const data = useLoaderData();

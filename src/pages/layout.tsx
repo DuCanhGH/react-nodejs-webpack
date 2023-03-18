@@ -10,8 +10,8 @@ import {
 } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import styles from "../app.module.sass";
-import logo from "../logo.svg";
+import styles from "@/app.module.sass";
+import logo from "@/logo.svg";
 //an example of how you can use css/sass/scss files.
 
 const ReactMarkdown = lazy(() => import("react-markdown"));
@@ -76,7 +76,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
           </Link>
           <a
             className="App-link"
-            href="https://beta.reactjs.org"
+            href="https://react.dev/"
             target="_blank"
             rel="noopener noreferrer"
           >

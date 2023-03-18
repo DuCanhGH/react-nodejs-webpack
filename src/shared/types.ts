@@ -1,6 +1,8 @@
+import type { FILE_TYPES } from "./constants";
+
 export interface PagesManifest {
   path: string;
-  importPath: string;
+  importPaths: Partial<Record<(typeof FILE_TYPES)[number], string>>;
   children: PagesManifest[];
 }
 

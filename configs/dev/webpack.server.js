@@ -4,15 +4,15 @@ import "dotenv/config";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 import commonServerConfig from "../common/webpack.server.js";
-import { clientPublicPath, devDir } from "../shared/constants.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import { clientPublicPath, devBuildDir } from "../shared/constants.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
 
 /** @type {import("webpack").Configuration} */
 const devServerConfig = {
   mode: "development",
   output: {
     publicPath: clientPublicPath,
-    path: devDir.build,
+    path: devBuildDir,
     filename: "server.js",
     module: true,
     library: {

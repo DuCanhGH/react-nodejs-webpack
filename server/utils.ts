@@ -3,7 +3,8 @@ import fs, { type PathLike } from "fs-extra";
 import path from "path";
 
 import { getRoutes } from "../src/routes";
-import type { AssetsManifest, PagesManifest } from "../src/types";
+import { FILE_TYPES, JS_EXTS } from "../src/shared/constants";
+import type { AssetsManifest, PagesManifest } from "../src/shared/types";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -74,7 +75,9 @@ const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key 
 
 const rootDir = fs.realpathSync(process.cwd());
 
-const pagesDir = path.join(rootDir, "src/pages");
+const srcDir = path.join(rootDir, "src");
+
+const pagesDir = path.join(srcDir, "pages");
 
 const getDirectories = async (source: PathLike) =>
   (await fs.readdir(source, { withFileTypes: true }))
@@ -98,10 +101,21 @@ const getRoutesList = async (routePath = pagesDir): Promise<PagesManifest> => {
   const resolvedPath = ensureLeadingSlash(convertToForwardSlash(pathDir));
   const lastRouteSegment = isRoot ? "/" : resolvedPath.slice(resolvedPath.lastIndexOf("/") + 1);
 
+  const baseImportPaths = `./pages${ensureTrailingSlash(resolvedPath)}`;
+  const importPaths: PagesManifest["importPaths"] = {};
+
+  for (const fileType of FILE_TYPES) {
+    for (const extension of JS_EXTS) {
+      if (fs.existsSync(path.join(srcDir, baseImportPaths, `${fileType}${extension}`))) {
+        importPaths[fileType] = `${baseImportPaths}${fileType}`;
+      }
+    }
+  }
+
   return {
     path: convertFileToReactRouterPath(lastRouteSegment),
     // this should be relative to src/routes.js
-    importPath: `./pages${ensureTrailingSlash(resolvedPath)}`,
+    importPaths,
     children: await Promise.all(
       (await getDirectories(routePath)).map((a) => getRoutesList(path.join(routePath, a))),
     ),

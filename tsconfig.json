@@ -16,14 +16,17 @@
     "noEmit": true,
     "noImplicitAny": true,
     "jsx": "react-jsx",
-    "types": ["react/experimental"]
+    "types": ["react/experimental"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "patch_react_useeffectevent.d.ts",
     "declarations.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "configs/*/webpack.*.js"
+    "configs/**.js"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,5 +1,5 @@
 {
-  "watch": ["dist/server.js"],
+  "watch": ["dist/server.js", ".env*", "!.env.example"],
   "exec": "node dist/server.js",
   "ext": "js ts"
 }

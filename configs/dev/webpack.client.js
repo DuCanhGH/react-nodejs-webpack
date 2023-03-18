@@ -5,15 +5,15 @@ import "webpack-dev-server";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 import commonClientConfig from "../common/webpack.client.js";
-import { clientPublicPath, devDir, WEBPACK_DEV_SERVER_PORT } from "../shared/constants.js";
-import convertBoolean from "../utils/bool_conv.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import { clientPublicPath, devBuildDir, WEBPACK_DEV_SERVER_PORT } from "../shared/constants.js";
+import convertBoolean from "../utils/bool-conv.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
 
 /** @type {import("webpack").Configuration} */
 const devClientConfig = {
   output: {
     publicPath: clientPublicPath,
-    path: devDir.build,
+    path: devBuildDir,
     filename: "static/js/[name].js",
     chunkFilename: "static/js/[name].chunk.js",
     module: true,
@@ -39,6 +39,7 @@ const devClientConfig = {
     new MiniCssExtractPlugin({
       filename: "static/css/[name].css",
       chunkFilename: "static/css/[name].chunk.css",
+      runtime: false,
     }),
   ],
   experiments: {

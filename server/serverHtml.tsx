@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { PAGES_MANIFEST_SCRIPT_ID } from "../src/shared/constants";
-import type { AssetsManifest } from "../src/types";
+import type { AssetsManifest } from "../src/shared/types";
 
 const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
   return assets[entrypoint] ? (
@@ -45,7 +45,7 @@ const ServerHTML = ({
       <script
         id={PAGES_MANIFEST_SCRIPT_ID}
         dangerouslySetInnerHTML={{
-          __html: `window.PAGES_MANIFEST = JSON.parse('${pagesManifest}')`,
+          __html: `window.PAGES_MANIFEST = ${pagesManifest}`,
         }}
       />
     </head>

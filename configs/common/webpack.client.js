@@ -4,19 +4,21 @@ import "dotenv/config";
 import ReactRefreshPlugin from "@pmmmwh/react-refresh-webpack-plugin";
 import fs from "fs-extra";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { resolve } from "path";
+import path from "path";
 import { WebpackManifestPlugin } from "webpack-manifest-plugin";
 
 import {
   clientEntrypoint,
   clientPublicPath,
-  devDir,
-  prodDir,
+  devAppAssetsManifest,
+  prodAppPathsManifest,
   rootDir,
   srcDir,
 } from "../shared/constants.js";
-import convertBoolean from "../utils/bool_conv.js";
-import { callAndMergeConfigs } from "../utils/call_and_merge_wp_configs.js";
+import addPathAliasesToSWC from "../utils/add-path-aliases-to-swc.js";
+import convertBoolean from "../utils/bool-conv.js";
+import { callAndMergeConfigs } from "../utils/call-and-merge-configs.js";
+import readTSConfig from "../utils/read-tsconfig.js";
 import common from "./webpack.shared.js";
 
 /** @type {import("../shared/types").WebpackConfigFunction} */
@@ -25,7 +27,15 @@ const commonClientConfig = async (_, argv) => {
   const isSourceMapEnabled = convertBoolean(
     isProd ? process.env.PROD_SOURCE_MAP : process.env.DEV_SOURCE_MAP,
   );
-  const swcRc = await fs.readJSON(resolve(rootDir, ".swcrc"), "utf-8");
+  const tsconfig = readTSConfig();
+  const swcRc = await fs.readJSON(path.resolve(rootDir, ".swcrc"), "utf-8");
+  if (tsconfig && tsconfig.options && tsconfig.options.paths) {
+    addPathAliasesToSWC(
+      swcRc,
+      path.join(rootDir, tsconfig.options.baseUrl ?? "."),
+      tsconfig.options.paths,
+    );
+  }
   return {
     target: "web",
     name: "client",
@@ -87,7 +97,7 @@ const commonClientConfig = async (_, argv) => {
     plugins: [
       ...[!isProd ? new ReactRefreshPlugin() : false],
       new WebpackManifestPlugin({
-        fileName: (isProd ? prodDir : devDir).appAssetsManifest,
+        fileName: isProd ? prodAppPathsManifest : devAppAssetsManifest,
         writeToFileEmit: true,
         generate: (seed, files) => {
           const entrypoints = new Set();
@@ -164,9 +174,6 @@ const commonClientConfig = async (_, argv) => {
         },
       }),
     ].filter(Boolean),
-    experiments: {
-      topLevelAwait: true,
-    },
   };
 };
 
