@@ -1,5 +1,3 @@
-import styles2 from "../../adu.module.scss";
+import aboutStyles from "./about.module.css";
 
-const AboutPage = () => <p className={styles2["hehe"]}>React!</p>;
-
-export default AboutPage;
+export const Component = () => <p className={aboutStyles.text}>React!</p>;

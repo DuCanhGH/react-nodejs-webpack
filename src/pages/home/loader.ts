@@ -1,14 +1,13 @@
 import type { LoaderFunction } from "@remix-run/router";
-import { json } from "react-router-dom";
 
 const rand = () => Math.round(Math.random() * 100);
 
-export interface HomeLoaderData {
-  message: string;
-}
+const loader = (async () => {
+  return {
+    message: `To ${rand()}`,
+  };
+}) satisfies LoaderFunction;
 
-const loader: LoaderFunction = async () => {
-  return json<HomeLoaderData>({ message: `To (${rand()})` });
-};
+export type Loader = typeof loader;
 
 export default loader;

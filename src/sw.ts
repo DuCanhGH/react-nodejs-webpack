@@ -8,7 +8,7 @@ import { NetworkFirst, StaleWhileRevalidate } from "workbox-strategies";
 
 declare let self: ServiceWorkerGlobalScope;
 
-// self.__WB_MANIFEST is default injection point
+// self.__WB_MANIFEST is the default injection point
 precacheAndRoute(self.__WB_MANIFEST);
 
 // clean old assets

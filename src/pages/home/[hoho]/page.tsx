@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 
-export default function Page() {
+export const Component = () => {
   const { hoho } = useParams();
+
   return <p>Hi, {hoho}!</p>;
-}
+};

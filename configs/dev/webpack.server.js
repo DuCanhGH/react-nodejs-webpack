@@ -13,11 +13,7 @@ const devServerConfig = {
   output: {
     publicPath: clientPublicPath,
     path: devBuildDir,
-    filename: "server.js",
-    module: true,
-    library: {
-      type: "module",
-    },
+    filename: "server.cjs",
   },
   plugins: [new MiniCssExtractPlugin()],
   stats: "errors-warnings",

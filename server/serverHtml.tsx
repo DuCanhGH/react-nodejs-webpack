@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { PAGES_MANIFEST_SCRIPT_ID } from "../src/shared/constants";
 import type { AssetsManifest } from "../src/shared/types";
 
 const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
@@ -22,15 +21,7 @@ const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
   );
 };
 
-const ServerHTML = ({
-  assets,
-  pagesManifest,
-  children,
-}: {
-  assets: AssetsManifest;
-  pagesManifest: string;
-  children: ReactNode;
-}) => (
+const ServerHTML = ({ assets, children }: { assets: AssetsManifest; children: ReactNode }) => (
   <html lang="en">
     <head>
       <meta charSet="utf-8" />
@@ -42,12 +33,6 @@ const ServerHTML = ({
       <link rel="manifest" href="/manifest.json" />
       <title>React App</title>
       {cssLinksFromAssets(assets, "client")}
-      <script
-        id={PAGES_MANIFEST_SCRIPT_ID}
-        dangerouslySetInnerHTML={{
-          __html: `window.PAGES_MANIFEST = ${pagesManifest}`,
-        }}
-      />
     </head>
     <body>
       <div id="root">{children}</div>

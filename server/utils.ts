@@ -1,8 +1,7 @@
 import type express from "express";
 import fs from "fs-extra";
 
-import { getRoutes } from "../src/routes";
-import type { AssetsManifest, PagesManifest } from "../src/shared/types";
+import type { AssetsManifest } from "../src/shared/types";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -46,9 +45,7 @@ const createFetchRequest = (req: express.Request): Request => {
   const url = new URL(req.originalUrl || req.url, origin);
   const controller = new AbortController();
 
-  req.on("close", () => {
-    controller.abort();
-  });
+  req.on("close", () => controller.abort());
 
   const init: RequestInit = {
     method: req.method,
@@ -73,28 +70,13 @@ const jsScriptTagsFromAssets = (assets: AssetsManifest, entrypoint: string, key 
 
 const loadAssetsAndRoutes = async () => {
   let assets: AssetsManifest | undefined;
-  let routesList: PagesManifest | undefined;
 
-  if (!process.env.ROUTES_LIST) {
-    throw new Error(
-      "Environment variable ROUTES_LIST not found. There may be a bug in your config.",
-    );
-  }
-  while (!routesList) {
-    if (!(await fs.pathExists(process.env.ROUTES_LIST))) {
-      console.warn("Haven't found routes-list.json yet, waiting...");
-      await delay(5000);
-      continue;
-    }
-    routesList = await fs.readJSON(process.env.ROUTES_LIST);
-  }
-
-  const routes = await getRoutes(routesList);
   if (!process.env.ASSETS_MANIFEST) {
     throw new Error(
       "Environment variable ASSETS_MANIFEST not found. There may be a bug in your config.",
     );
   }
+
   while (!assets) {
     if (!(await fs.pathExists(process.env.ASSETS_MANIFEST))) {
       console.warn("Haven't found assets.json yet, waiting...");
@@ -105,8 +87,6 @@ const loadAssetsAndRoutes = async () => {
   }
   return {
     assets,
-    routesList,
-    routes,
   };
 };
 

@@ -1,13 +1,16 @@
 import "dotenv/config";
 
 import { installGlobals } from "@remix-run/node";
-import { createStaticHandler } from "@remix-run/router";
 import compression from "compression";
 import express from "express";
-import { createServer } from "http";
 import { renderToPipeableStream, renderToStaticMarkup } from "react-dom/server";
-import { createStaticRouter, StaticRouterProvider } from "react-router-dom/server";
+import {
+  createStaticHandler,
+  createStaticRouter,
+  StaticRouterProvider,
+} from "react-router-dom/server";
 
+import { routes } from "../src/routes";
 import ServerHTML from "./serverHtml";
 import {
   createFetchRequest,
@@ -15,23 +18,24 @@ import {
   jsScriptTagsFromAssets,
   loadAssetsAndRoutes,
 } from "./utils";
-
 installGlobals();
 
-const { assets, routesList, routes } = await loadAssetsAndRoutes();
+const handler = createStaticHandler(routes);
 
-const resolvedRoutes = [routes];
+const { assets } = await loadAssetsAndRoutes();
 
 const renderApp = async (req: express.Request, res: express.Response) => {
-  const { query } = createStaticHandler(resolvedRoutes);
   const remixRequest = createFetchRequest(req);
-  const context = await query(remixRequest);
+  const context = await handler.query(remixRequest);
+
   if (context instanceof Response) {
     throw context;
   }
-  const router = createStaticRouter(resolvedRoutes, context);
+
+  const router = createStaticRouter(handler.dataRoutes, context);
+
   const { pipe, abort } = renderToPipeableStream(
-    <ServerHTML assets={assets} pagesManifest={JSON.stringify(routesList)}>
+    <ServerHTML assets={assets}>
       <StaticRouterProvider router={router} context={context} />
     </ServerHTML>,
     {
@@ -52,9 +56,7 @@ const renderApp = async (req: express.Request, res: express.Response) => {
       },
     },
   );
-  setTimeout(() => {
-    abort();
-  }, 10000);
+  setTimeout(abort, 100000);
 };
 
 const app = express();
@@ -64,15 +66,9 @@ app.use(compression());
 app.use(express.static(process.env.PUBLIC_DIR ?? "public"));
 
 app.get("/api", (_req, res) => {
-  res.status(404).json({ message: "hehe", err: true });
+  res.status(404).json({ message: "Hello world!", err: true });
 });
 
 app.get("*", handleErrors(renderApp));
 
-const port = process.env.PORT || 3000;
-
-const httpServer = createServer(app);
-
-httpServer.listen(port, () => {
-  console.log(`🚀 Server started on port ${port}`);
-});
+export { app };

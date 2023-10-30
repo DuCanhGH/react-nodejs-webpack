@@ -1,9 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/swcrc",
   "module": {
-    "type": "es6",
-    "lazy": true,
-    "noInterop": true
+    "type": "es6"
   },
   "jsc": {
     "parser": {

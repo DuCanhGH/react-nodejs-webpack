@@ -1,6 +1,3 @@
-import "../app.css";
-
-import type { ReactNode } from "react";
 import {
   experimental_useEffectEvent as useEffectEvent,
   lazy,
@@ -8,17 +5,15 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { isRouteErrorResponse, Link, Outlet, useLocation, useRouteError } from "react-router-dom";
 
-import styles from "@/app.module.sass";
 import logo from "@/logo.svg";
-//an example of how you can use css/sass/scss files.
 
 const ReactMarkdown = lazy(() => import("react-markdown"));
 
 type ColorScheme = "light" | "dark";
 
-const RootLayout = ({ children }: { children: ReactNode }) => {
+export const Component = () => {
   const [theme, setTheme] = useState<ColorScheme>("light");
   const location = useLocation();
   const doSomething = useEffectEvent((url: string) => console.log(url, theme));
@@ -29,17 +24,16 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <Suspense fallback={<p className={styles.hehe}>Loading...</p>}>
+      <section className="App-header">
+        <Suspense fallback={<p>Loading...</p>}>
           <ReactMarkdown children="*hehe*" />
         </Suspense>
         <img src={logo} className="App-logo" alt="logo" />
-        <p className={styles.hehe}>
+        <p>
           Edit <code>src/layout.tsx</code> then save it to see your changes. Also edit{" "}
           <code>src/pages</code> to add new routes!
         </p>
         <p
-          className={styles.hehe}
           style={{
             borderRadius: "6px",
             padding: "12px",
@@ -63,7 +57,7 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
         >
           {theme.slice(0, 1).toUpperCase() + theme.slice(1)}
         </button>
-        {children}
+        <Outlet />
         <div>
           <Link to="/" className="App-link">
             Root
@@ -83,9 +77,16 @@ const RootLayout = ({ children }: { children: ReactNode }) => {
             Learn React here!
           </a>
         </div>
-      </header>
+      </section>
     </div>
   );
 };
 
-export default RootLayout;
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  return (
+    <h1>
+      {isRouteErrorResponse(error) ? `${error.status} ${error.statusText}` : JSON.stringify(error)}
+    </h1>
+  );
+};

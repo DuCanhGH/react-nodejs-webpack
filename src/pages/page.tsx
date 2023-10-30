@@ -1,5 +1,14 @@
-import styles2 from "@/adu.module.scss";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
-const RootPage = () => <p className={styles2["hehe"]}>Welcome</p>;
+export const Component = () => <p>Welcome</p>;
 
-export default RootPage;
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  return (
+    <div>
+      {isRouteErrorResponse(error) && error.status === 404
+        ? "Page not found!"
+        : "An error occurred :("}
+    </div>
+  );
+};

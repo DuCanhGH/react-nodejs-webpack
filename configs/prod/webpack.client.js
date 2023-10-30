@@ -77,6 +77,9 @@ const prodClientConfig = {
       }),
     ],
   },
+  experiments: {
+    topLevelAwait: true,
+  },
   devtool: convertBoolean(process.env.PROD_SOURCE_MAP) ? "source-map" : undefined,
   plugins: [
     new MiniCssExtractPlugin({

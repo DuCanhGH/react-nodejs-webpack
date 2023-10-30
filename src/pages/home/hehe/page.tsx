@@ -1,8 +1,8 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData } from "@/shared/utils";
 
-import styles2 from "@/adu.module.scss";
+import type { Loader } from "./loader";
 
-export default function Page() {
-  const data = useLoaderData();
-  return <p className={styles2["hehe"]}>Hello world! {JSON.stringify(data)}</p>;
-}
+export const Component = () => {
+  const data = useLoaderData<Loader>();
+  return <p>Hello world! {JSON.stringify(data)}</p>;
+};

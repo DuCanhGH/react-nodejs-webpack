@@ -1,16 +1,8 @@
-import { Await, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "@/shared/utils";
 
-import styles2 from "@/adu.module.scss";
+import type { Loader } from "./loader";
 
-import type { HomeLoaderData } from "./loader";
-
-const HomePage = () => {
-  const data = useLoaderData() as HomeLoaderData;
-  return (
-    <Await resolve={data}>
-      <p className={styles2["hehe"]}>{data.message}</p>
-    </Await>
-  );
+export const Component = () => {
+  const { message } = useLoaderData<Loader>();
+  return <p>{message}</p>;
 };
-
-export default HomePage;

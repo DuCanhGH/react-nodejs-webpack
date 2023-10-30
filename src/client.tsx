@@ -1,18 +1,12 @@
+import "./app.css";
+
 import { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, matchRoutes, RouterProvider } from "react-router-dom";
 
-import { getRoutes } from "./routes";
-import { PAGES_MANIFEST_SCRIPT_ID } from "./shared/constants";
-import type { PagesManifest } from "./shared/types";
+import { routes } from "./routes";
 
-declare global {
-  interface Window {
-    PAGES_MANIFEST: PagesManifest;
-  }
-}
-
-const container = document.getElementById("root"); //HTML template must have an element that uses this id `root`.
+const container = document.getElementById("root"); //HTML template must have an element that uses the id `root`.
 const isDev = process.env.NODE_ENV !== "production";
 
 if (!container) throw new Error("Failed to find the root element");
@@ -30,10 +24,25 @@ if (!isDev && "serviceWorker" in navigator) {
   });
 }
 
-getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
-  document.getElementById(PAGES_MANIFEST_SCRIPT_ID)?.remove();
+const lazyMatches = matchRoutes(routes, window.location)?.filter((m) => !!m.route.lazy);
 
-  const router = createBrowserRouter([routes]);
+(async () => {
+  // Load the lazy matches and update the routes before creating your router
+  // so we can hydrate the SSR-rendered content synchronously
+  if (!!lazyMatches && lazyMatches.length > 0) {
+    await Promise.all(
+      lazyMatches.map(async (m) => {
+        const routeModule = await m.route.lazy?.();
+        Object.assign(m.route, {
+          ...routeModule,
+          lazy: undefined,
+        });
+        console.log(m);
+      }),
+    );
+  }
+
+  const router = createBrowserRouter(routes);
 
   hydrateRoot(
     container,
@@ -41,4 +50,4 @@ getRoutes(window.PAGES_MANIFEST ?? []).then((routes) => {
       <RouterProvider router={router} fallbackElement={null} />
     </StrictMode>,
   );
-});
+})();
