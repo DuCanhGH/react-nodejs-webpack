@@ -2,24 +2,21 @@ import type { ReactNode } from "react";
 
 import type { AssetsManifest } from "../src/shared/types";
 
-const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => {
-  return assets[entrypoint] ? (
-    assets[entrypoint].css && typeof assets[entrypoint].css === "object" ? (
+const cssLinksFromAssets = (assets: AssetsManifest, entrypoint: string) => (
+  <>
+    {assets[entrypoint] &&
+      assets[entrypoint].css &&
+      typeof assets[entrypoint].css === "object" &&
       assets[entrypoint].css.map((asset) => (
         <link
           rel="stylesheet"
           type="text/css"
           href={asset}
-          key={`css-links-client-${encodeURIComponent(asset)}`}
+          key={`css-link-${entrypoint}-${encodeURIComponent(asset)}`}
         />
-      ))
-    ) : (
-      <></>
-    )
-  ) : (
-    <></>
-  );
-};
+      ))}
+  </>
+);
 
 const ServerHTML = ({ assets, children }: { assets: AssetsManifest; children: ReactNode }) => (
   <html lang="en">
